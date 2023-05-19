@@ -1,0 +1,10 @@
+{
+  "db_host": "localhost",
+  "db_name": "wp-umind",
+  "db_user": "wordpress",
+  "db_password": "wordpress",
+  "new_domain": "https://umind.test/",
+  "wp_debug": true,
+  "table_prefix": "wp_",
+  "api_host": "https://api.avgr.it/api/"
+}

@@ -1,0 +1,9 @@
+.container {
+    width: 1280px;
+    margin: auto;
+    padding: 0 15px;
+
+    @include media1200 {
+        width: 100%;
+    }
+}
