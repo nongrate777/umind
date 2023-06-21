@@ -1,80 +1,40 @@
 <?php
 
 if (!defined('ABSPATH')) {
-	exit;  // Exit if accessed directly
+	exit; // Exit if accessed directly
 }
 
 class AIOWPSecurity_Tools_Menu extends AIOWPSecurity_Admin_Menu {
 
 	/**
-	 * All tab keys, titles and render callbacks.
+	 * Tools menu slug
 	 *
-	 * @var Array
+	 * @var string
 	 */
-	protected $menu_tabs;
+	protected $menu_page_slug = AIOWPSEC_TOOLS_MENU_SLUG;
 
 	/**
-	 * Renders the submenu's current tab page.
-	 *
-	 * @return Void
+	 * Constructor adds menu for Tools
 	 */
 	public function __construct() {
-		$this->render_menu_page();
+		parent::__construct(__('Tools', 'all-in-one-wp-security-and-firewall'));
 	}
 
+
 	/**
-	 * Populates $menu_tabs array.
+	 * This function will setup the menus tabs by setting the array $menu_tabs
 	 *
-	 * @return Void
+	 * @return void
 	 */
-	private function set_menu_tabs() {
-		$this->menu_tabs = apply_filters('aiowpsecurity_tools_tabs',
-			array(
-				'whois-lookup' => array(
-					'title' => __('WHOIS Lookup', 'all-in-one-wp-security-and-firewall'),
-					'render_callback' => array($this, 'render_whois_lookup_tab'),
-				)
+	protected function setup_menu_tabs() {
+		$menu_tabs = array(
+			'whois-lookup' => array(
+				'title' => __('WHOIS lookup', 'all-in-one-wp-security-and-firewall'),
+				'render_callback' => array($this, 'render_whois_lookup_tab'),
 			)
 		);
-	}
-
-	/**
-	 * Renders the submenu's tabs as nav items.
-	 *
-	 * @return Void
-	 */
-	private function render_menu_tabs() {
-		$current_tab = $this->get_current_tab();
-
-		echo '<h2 class="nav-tab-wrapper">';
-		foreach ($this->menu_tabs as $tab_key => $tab_info) {
-			$active = $current_tab == $tab_key ? 'nav-tab-active' : '';
-			echo '<a class="nav-tab '.$active.'" href="?page='.AIOWPSEC_TOOLS_MENU_SLUG.'&tab='.$tab_key.'">'.esc_html($tab_info['title']).'</a>';
-		}
-		echo '</h2>';
-	}
-
-	/**
-	 * Renders the submenu's current tab page.
-	 *
-	 * @return Void
-	 */
-	private function render_menu_page() {
-		echo '<div class="wrap">';  // Start of wrap
-		echo '<h2>'.__('Tools', 'all-in-one-wp-security-and-firewall').'</h2>';  // Interface title
-		$this->set_menu_tabs();
-		$tab = $this->get_current_tab();
-		$this->render_menu_tabs();
-
-		?>
-		<div id="poststuff">
-			<div id="post-body">
-				<?php call_user_func($this->menu_tabs[$tab]['render_callback']); ?>
-			</div>
-		</div>
-		<?php
-
-		echo '</div>';  // End of wrap
+		
+		$this->menu_tabs = array_filter($menu_tabs, array($this, 'should_display_tab'));
 	}
 
 	/**
@@ -85,7 +45,7 @@ class AIOWPSecurity_Tools_Menu extends AIOWPSecurity_Admin_Menu {
 	 *
 	 * @return String|WP_Error - returns preformatted WHOIS lookup result or WP_Error
 	 */
-	private function whois_lookup($search, $timeout = 10) {
+	public function whois_lookup($search, $timeout = 10) {
 		$fp = @fsockopen('whois.iana.org', 43, $errno, $errstr, $timeout);
 
 		if (!$fp) {
@@ -165,34 +125,12 @@ class AIOWPSecurity_Tools_Menu extends AIOWPSecurity_Admin_Menu {
 	 *
 	 * @return Void
 	 */
-	private function render_whois_lookup_tab() {
+	protected function render_whois_lookup_tab() {
 		global $aio_wp_security;
-
-		?>
-		<div class="aio_blue_box">
-			<p><?php echo __('The WHOIS lookup feature gives you a way to look up who owns an IP address or domain name.', 'all-in-one-wp-security-and-firewall').' '.__('You can use this to investigate users engaging in malicious activity on your site.', 'all-in-one-wp-security-and-firewall'); ?></p>
-		</div>
-		<div class="postbox">
-			<h3 class="hndle"><?php _e('WHOIS Lookup On IP Or Domain', 'all-in-one-wp-security-and-firewall'); ?></h3>
-			<div class="inside">
-				<form method="post" action="">
-					<?php wp_nonce_field('aiowpsec-whois-lookup'); ?>
-					<table class="form-table">
-						<tr valign="top">
-							<th scope="row">
-								<label for="aiowps_whois_ip_or_domain"><?php _e('IP address or domain name:', 'all-in-one-wp-security-and-firewall'); ?></label>
-							</th>
-							<td>
-								<input id="aiowps_whois_ip_or_domain" type="text" name="aiowps_whois_ip_or_domain" value="" size="80"/>
-							</td>
-						</tr>
-					</table>
-					<input class="button-primary" type="submit" value="<?php _e('Look up IP or domain', 'all-in-one-wp-security-and-firewall'); ?>"/>
-				</form>
-			</div>
-		</div>
-		<?php
-
+		
+		$lookup = false;
+		$ip_or_domain = '';
+		
 		if (isset($_POST['aiowps_whois_ip_or_domain'])) {
 			$nonce = $_POST['_wpnonce'];
 
@@ -200,40 +138,11 @@ class AIOWPSecurity_Tools_Menu extends AIOWPSecurity_Admin_Menu {
 				$aio_wp_security->debug_logger->log_debug('Nonce check failed on WHOIS lookup.', 4);
 				die('Nonce check failed on WHOIS lookup.');
 			}
-
+			$lookup = true;
 			$ip_or_domain = stripslashes($_POST['aiowps_whois_ip_or_domain']);
-
-		?>
-			<div class="postbox">
-				<h3 class="hndle">
-					<table>
-						<tr valign="top">
-							<th scope="row">WHOIS: </th>
-							<td><?php echo htmlspecialchars($ip_or_domain); ?></td>
-						</tr>
-					</table>
-				</h3>
-				<div class="inside">
-					<pre><?php
-						if (empty($ip_or_domain) || !(filter_var($ip_or_domain, FILTER_VALIDATE_IP) || filter_var($ip_or_domain, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME))) {
-							$this->show_msg_error(__('Please enter a valid IP address or domain name to look up.', 'all-in-one-wp-security-and-firewall'));
-							_e('Nothing to show.', 'all-in-one-wp-security-and-firewall');
-						} else {
-							$result = $this->whois_lookup($ip_or_domain);
-
-							if (is_wp_error($result)) {
-								$this->show_msg_error(htmlspecialchars($result->get_error_message()));
-								_e('Nothing to show.', 'all-in-one-wp-security-and-firewall');
-							} else {
-								echo htmlspecialchars($result);
-							}
-						}
-					?></pre>
-				</div>
-			</div>
-		<?php
-
 		}
+
+		$aio_wp_security->include_template('wp-admin/tools/whois-lookup.php', false, array('AIOWPSecurity_Tools_Menu' => $this, 'lookup' => $lookup, 'ip_or_domain' => $ip_or_domain));
 	}
 
-}  // End of class
+} // End of class

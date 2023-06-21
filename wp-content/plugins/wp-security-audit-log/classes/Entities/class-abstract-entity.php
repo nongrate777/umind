@@ -33,16 +33,25 @@ if ( ! class_exists( '\WSAL\Entities\Abstract_Entity' ) ) {
 		 *
 		 * @var [type]
 		 *
-		 * @since      4.4.2.1
+		 * @since 4.4.2.1
 		 */
 		private static $connection = null;
+
+		/**
+		 * Keeps the info about the columns of the table - name, type
+		 *
+		 * @var array
+		 *
+		 * @since 4.5.0
+		 */
+		private static $fields = array();
 
 		/**
 		 * Returns the the table name
 		 *
 		 * @return string
 		 *
-		 * @since      4.4.2.1
+		 * @since 4.4.2.1
 		 */
 		public static function get_table_name(): string {
 			return self::get_connection()->base_prefix . static::$table;
@@ -53,7 +62,7 @@ if ( ! class_exists( '\WSAL\Entities\Abstract_Entity' ) ) {
 		 *
 		 * @return \WPDB @see \WSAL_Connector_MySQLDB
 		 *
-		 * @since      4.4.2.1
+		 * @since 4.4.2.1
 		 */
 		public static function get_connection() {
 			if ( null === self::$connection ) {
@@ -78,7 +87,7 @@ if ( ! class_exists( '\WSAL\Entities\Abstract_Entity' ) ) {
 		 *
 		 * @return void
 		 *
-		 * @since      4.4.2.1
+		 * @since 4.4.2.1
 		 */
 		public static function set_connection( $connection ) {
 			self::$connection = $connection;
@@ -89,7 +98,7 @@ if ( ! class_exists( '\WSAL\Entities\Abstract_Entity' ) ) {
 		 *
 		 * @return void
 		 *
-		 * @since      4.4.2.1
+		 * @since 4.4.2.1
 		 */
 		public static function destroy_connection() {
 			self::$connection = null;
@@ -105,7 +114,7 @@ if ( ! class_exists( '\WSAL\Entities\Abstract_Entity' ) ) {
 		 *
 		 * @return bool
 		 *
-		 * @since      4.4.2.1
+		 * @since 4.4.2.1
 		 */
 		public static function maybe_create_table( string $table_name, string $create_ddl ): bool {
 			foreach ( self::get_connection()->get_col( 'SHOW TABLES', 0 ) as $table ) {
@@ -130,7 +139,7 @@ if ( ! class_exists( '\WSAL\Entities\Abstract_Entity' ) ) {
 		 *
 		 * @return boolean
 		 *
-		 * @since      4.4.2.1
+		 * @since 4.4.2.1
 		 */
 		public static function is_external_db(): bool {
 			$db_config = \WSAL_Connector_ConnectorFactory::get_config();
@@ -151,7 +160,7 @@ if ( ! class_exists( '\WSAL\Entities\Abstract_Entity' ) ) {
 		 *
 		 * @return boolean - True if the column exists and all given parameters are the same, false otherwise.
 		 *
-		 * @since      4.4.2.1
+		 * @since 4.4.2.1
 		 */
 		public static function check_column(
 			string $table_name,
@@ -204,7 +213,7 @@ if ( ! class_exists( '\WSAL\Entities\Abstract_Entity' ) ) {
 		 *
 		 * @return integer
 		 *
-		 * @since      4.4.2.1
+		 * @since 4.4.2.1
 		 */
 		public static function get_last_sql_error( $_wpdb ): int {
 			$code = 0;
@@ -235,7 +244,7 @@ if ( ! class_exists( '\WSAL\Entities\Abstract_Entity' ) ) {
 		 *
 		 * @return boolean
 		 *
-		 * @since      4.4.2.1
+		 * @since 4.4.2.1
 		 */
 		public static function check_table_exists( string $table_name ): bool {
 			foreach ( self::get_connection()->get_col( 'SHOW TABLES', 0 ) as $table ) {
@@ -244,6 +253,118 @@ if ( ! class_exists( '\WSAL\Entities\Abstract_Entity' ) ) {
 				}
 			}
 			return false;
+		}
+
+		/**
+		 * Returns records in the table based on condition
+		 *
+		 * @param string $cond - The condition.
+		 * @param array  $args - The arguments (values).
+		 *
+		 * @return int
+		 *
+		 * @since 4.5.0
+		 */
+		public static function count( $cond = '%d', $args = array( 1 ) ) {
+			$_wpdb = self::get_connection();
+			$sql   = $_wpdb->prepare( 'SELECT COUNT(*) FROM ' . self::get_table_name() . ' WHERE ' . $cond, $args );
+
+			$_wpdb->suppress_errors( true );
+			$count = (int) $_wpdb->get_var( $sql );
+			if ( '' !== $_wpdb->last_error ) {
+				if ( 1146 === self::get_last_sql_error( $_wpdb ) ) {
+					if ( ( static::class )::create_table() ) {
+						$count = (int) $_wpdb->get_var( $sql );
+					}
+				}
+			}
+			$_wpdb->suppress_errors( false );
+
+			return $count;
+		}
+
+		/**
+		 * Saves the given data into the table
+		 * The data should be in following format:
+		 * field name => value
+		 *
+		 * It checks the given data array against the table fields and determines the types based on that, it stores the values in the table then.
+		 *
+		 * @param array $data - The data to be saved (check above about the format).
+		 *
+		 * @return int
+		 *
+		 * @since 4.5.0
+		 */
+		public static function save( $data ) {
+
+			$format      = array();
+			$insert_data = array();
+
+			foreach ( $data as $key => $val ) {
+				if ( isset( ( static::class )::$fields[ $key ] ) ) {
+					$insert_data[ $key ] = $val;
+					$format[ $key ]      = '%s';
+					if ( 'int' === ( static::class )::$fields[ $key ] ) {
+						$format[ $key ] = '%d';
+					}
+					if ( 'float' === ( static::class )::$fields[ $key ] ) {
+						$format[ $key ] = '%f';
+					}
+				}
+			}
+
+			if ( ! empty( $format ) ) {
+				$_wpdb = self::get_connection();
+
+				$_wpdb->suppress_errors( true );
+
+				$_wpdb->replace( self::get_table_name(), $insert_data, $format );
+
+				if ( '' !== $_wpdb->last_error ) {
+					if ( 1146 === self::get_last_sql_error( $_wpdb ) ) {
+						if ( ( static::class )::create_table() ) {
+							$_wpdb->replace( self::get_table_name(), $data, $format );
+						}
+					}
+				}
+
+				$_wpdb->suppress_errors( false );
+
+				return $_wpdb->insert_id;
+			}
+
+			return 0; // no record is inserted.
+		}
+
+		/**
+		 * Prepares the data array and the format array based on the existing table fields
+		 *
+		 * @param array $data - The data to make preparation from.
+		 *
+		 * @return array
+		 *
+		 * @since 4.5.0
+		 */
+		public static function prepare_data( array $data ): array {
+
+			$format      = array();
+			$insert_data = array();
+
+			foreach ( $data as $key => $val ) {
+				if ( isset( ( static::class )::$fields[ $key ] ) ) {
+					$insert_data[ $key ] = $val;
+					$format[ $key ]      = '%s';
+					if ( 'int' === ( static::class )::$fields[ $key ] ) {
+						$format[ $key ] = '%d';
+					}
+					if ( 'float' === ( static::class )::$fields[ $key ] ) {
+						$format[ $key ] = '%f';
+					}
+				}
+			}
+
+			return array( $insert_data, $format );
 		}
 	}
 }

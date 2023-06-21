@@ -15,6 +15,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 use WSAL\Adapter\WSAL_Adapters_MySQL_Occurrence;
 use WSAL\Adapter\WSAL_Adapters_MySQL_Meta;
+use WSAL\Entities\Abstract_Entity;
 
 /**
  * MySQL Connector Class
@@ -210,9 +211,18 @@ class WSAL_Connector_MySQLDB extends WSAL_Connector_AbstractConnector implements
 	 * {@inheritDoc}
 	 */
 	public function is_installed() {
-		$wpdb      = $this->get_connection();
-		$table     = $wpdb->base_prefix . 'wsal_occurrences';
+		$wpdb  = $this->get_connection();
+		$table = $wpdb->base_prefix . 'wsal_occurrences';
+
+		$wpdb->suppress_errors( true );
 		$db_result = $wpdb->query( "SELECT COUNT(1) FROM {$table};" ); // phpcs:ignore
+		if ( '' !== $wpdb->last_error ) {
+			if ( 1146 === Abstract_Entity::get_last_sql_error( $wpdb ) ) {
+				$wpdb->suppress_errors( false );
+				return false;
+			}
+		}
+		$wpdb->suppress_errors( false );
 
 		return 1 === $db_result;
 	}
@@ -238,7 +248,7 @@ class WSAL_Connector_MySQLDB extends WSAL_Connector_AbstractConnector implements
 
 		$class = new $class_name( $this->get_connection() );
 
-		if ( ! $is_external_database && $class instanceof \WSAL\Adapter\WSAL_Adapters_MySQL_TmpUser ) {
+		if ( ! $is_external_database ) {
 			// Exclude the tmp_users table for local database.
 			return;
 		}
@@ -295,8 +305,17 @@ class WSAL_Connector_MySQLDB extends WSAL_Connector_AbstractConnector implements
 			return 0;
 		}
 
-		$sql         = 'SELECT * FROM ' . $occurrence_adapter_source->get_table() . ' LIMIT ' . $limit;
-		$occurrences = $source_db->get_results( $sql, ARRAY_A );
+		$sql = 'SELECT * FROM ' . $occurrence_adapter_source->get_table() . ' LIMIT ' . $limit;
+
+		$source_db->suppress_errors( true );
+		$occurrences = $source_db->get_results( $sql, ARRAY_A ); // phpcs:ignore
+		if ( '' !== $source_db->last_error ) {
+			if ( 1146 === Abstract_Entity::get_last_sql_error( $source_db ) ) {
+				$source_db->suppress_errors( false );
+				return 0;
+			}
+		}
+		$source_db->suppress_errors( false );
 
 		// No more data to migrate, delete the old tables.
 		if ( empty( $occurrences ) ) {
@@ -519,7 +538,18 @@ class WSAL_Connector_MySQLDB extends WSAL_Connector_AbstractConnector implements
 			}
 
 			$sql = rtrim( $sql, ', ' );
-			$archive_db->query( $sql );
+
+			$archive_db->suppress_errors( true );
+
+			$data = $archive_db->query( $sql );
+			if ( '' !== $archive_db->last_error ) {
+				if ( 1146 === Abstract_Entity::get_last_sql_error( $archive_db ) ) {
+					$occurrence_new->install();
+					$occurrence_new->create_indexes();
+					$data = $archive_db->query( $sql );
+				}
+			}
+			$archive_db->suppress_errors( false );
 
 			return $args;
 		} else {
@@ -563,9 +593,20 @@ class WSAL_Connector_MySQLDB extends WSAL_Connector_AbstractConnector implements
 				);
 			}
 			$sql = rtrim( $sql, ', ' );
-			$archive_db->query( $sql );
 
-			return $args;
+			$archive_db->suppress_errors( true );
+
+			$data = $archive_db->query( $sql );
+			if ( '' !== $archive_db->last_error ) {
+				if ( 1146 === Abstract_Entity::get_last_sql_error( $archive_db ) ) {
+					$meta_new->install();
+					$meta_new->create_indexes();
+					$data = $archive_db->query( $sql );
+				}
+			}
+			$archive_db->suppress_errors( false );
+
+			return $data;
 		} else {
 			return false;
 		}

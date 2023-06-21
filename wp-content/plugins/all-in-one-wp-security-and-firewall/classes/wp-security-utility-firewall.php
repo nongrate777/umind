@@ -24,12 +24,25 @@ class AIOWPSecurity_Utility_Firewall {
 	/**
 	 * Returns the firewall rules path.
 	 *
+	 * @param boolean $mkdir - whether or not to create the directory if it doesn't exist
+	 *
 	 * @return string
 	 */
-	public static function get_firewall_rules_path() {
+	public static function get_firewall_rules_path($mkdir = false) {
 		$upload_dir_info = wp_get_upload_dir();
-		$firewall_rules_path = trailingslashit($upload_dir_info['basedir'].'/aios/firewall-rules');
-		wp_mkdir_p($firewall_rules_path);
+		$base = $upload_dir_info['basedir'];
+
+		// We want the base to always point to the main site's upload directory and not the subsite's.
+		if (!is_main_site()) {
+			$base = preg_replace('#/sites/'.get_current_blog_id().'/?$#', '', $base);
+		}
+
+		$firewall_rules_path = trailingslashit("{$base}/aios/firewall-rules");
+
+		if ($mkdir) {
+			wp_mkdir_p($firewall_rules_path);
+		}
+
 		return wp_normalize_path($firewall_rules_path);
 	}
 
@@ -58,7 +71,7 @@ class AIOWPSecurity_Utility_Firewall {
 	 * @return string
 	 */
 	public static function get_muplugin_path() {
-		return path_join(AIOWPSecurity_Utility_File::get_mu_plugin_dir(), 'aiowpsec-firewall-loader.php');
+		return path_join(AIOWPSecurity_Utility_File::get_mu_plugin_dir(), 'aios-firewall-loader.php');
 	}
 
 	/**
@@ -151,13 +164,36 @@ class AIOWPSecurity_Utility_Firewall {
 	}
 
 	/**
+	 * Checks whether the firewall has been setup
+	 *
+	 * @return boolean
+	 */
+	public static function is_firewall_setup() {
+		$is_in_bootstrap = (true === self::get_bootstrap_file()->contains_contents());
+
+		$files = array(
+			self::get_server_file(),
+			self::get_wpconfig_file(),
+			self::get_muplugin_file(),
+		);
+
+		foreach ($files as $file) {
+			if (AIOWPSecurity_Utility_Firewall::MANUAL_SETUP === $file) continue;
+			
+			if ($is_in_bootstrap && (true === $file->contains_contents())) return true;
+		}
+
+		return false;
+	}
+
+	/**
 	 * Attempts to remove our firewall.
 	 *
 	 * @return void
 	 */
 	public static function remove_firewall() {
 		global $aio_wp_security;
-		
+
 		$firewall_files = array(
 			'server'    => AIOWPSecurity_Utility_Firewall::get_server_file(),
 			'bootstrap' => AIOWPSecurity_Utility_Firewall::get_bootstrap_file(),
@@ -175,15 +211,12 @@ class AIOWPSecurity_Utility_Firewall {
 				$removed = $file->remove_contents();
 
 				if (is_wp_error($removed)) {
-					global $aio_wp_security;
-
 					$error_message = $removed->get_error_message();
 					$error_message .= ' - ';
 					$error_message .= $removed->get_error_data();
 					$aio_wp_security->debug_logger->log_debug($error_message, 4);
 				}
 			}
-			
 		}
 
 		//Delete our mu-plugin, if it's created
@@ -193,8 +226,7 @@ class AIOWPSecurity_Utility_Firewall {
 			@unlink($muplugin_path); // phpcs:ignore Generic.PHP.NoSilencedErrors.Discouraged -- ignore this
 		}
 
-		$aio_wp_security->configs->set_value('aios_firewall_dismiss', false);
-		$aio_wp_security->configs->save_config();
-
+		$aio_wp_security->configs->set_value('aios_firewall_dismiss', false, true);
 	}
+
 }

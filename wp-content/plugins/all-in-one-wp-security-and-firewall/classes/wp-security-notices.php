@@ -96,8 +96,8 @@ class AIOWPSecurity_Notices extends Updraft_Notices_1_2 {
 				'validity_function' => 'should_show_login_whitelist_disabled_on_upgrade_notice',
 			),
 			'rate_plugin' => array(
-				'text' => sprintf(htmlspecialchars(__('Hey - We noticed All In One WP Security & Firewall has kept your site safe for a while.  If you like us, please consider leaving a positive review to spread the word.  Or if you have any issues or questions please leave us a support message %s.', 'all-in-one-wp-security-and-firewall')), '<a href="https://wordpress.org/support/plugin/all-in-one-wp-security-and-firewall/" target="_blank">'.__('here', 'all-in-one-wp-security-and-firewall').'</a>').'<br>'.__('Thank you so much!', 'all-in-one-wp-security-and-firewall').'<br><br>- <b>'.__('Team All In One WP Security & Firewall', 'all-in-one-wp-security-and-firewall').'</b>',
-				'image' => 'notices/aiowps-logo.png',
+				'text' => sprintf(htmlspecialchars(__('Hey - We noticed All In One WP Security & Firewall has kept your site safe for a while.  If you like us, please consider leaving a positive review to spread the word.  Or if you have any issues or questions please leave us a support message %s.', 'all-in-one-wp-security-and-firewall')), '<a href="https://wordpress.org/support/plugin/all-in-one-wp-security-and-firewall/" target="_blank">'.__('here', 'all-in-one-wp-security-and-firewall').'</a>').'<br>'.__('Thank you so much!', 'all-in-one-wp-security-and-firewall').'<br><br>- <b>'.htmlspecialchars(__('Team All In One WP Security & Firewall', 'all-in-one-wp-security-and-firewall')).'</b>',
+				'image' => 'plugin-logos/aiowps-logo.png',
 				'button_link' => 'https://wordpress.org/support/plugin/all-in-one-wp-security-and-firewall/reviews/?rate=5#new-post',
 				'button_meta' => 'review',
 				'dismiss_time' => 'dismiss_review_notice',
@@ -107,8 +107,8 @@ class AIOWPSecurity_Notices extends Updraft_Notices_1_2 {
 			'updraftplus' => array(
 				'prefix' => '',
 				'title' => __('Enhance your security even more by backing up your site', 'all-in-one-wp-security-and-firewall'),
-				'text' => __("UpdraftPlus is the world's most trusted backup plugin from the owners of All In One WP Security & Firewall", 'all-in-one-wp-security-and-firewall'),
-				'image' => 'notices/updraft_logo.png',
+				'text' => htmlspecialchars(__('UpdraftPlus is the world\'s most trusted backup plugin from the owners of All In One WP Security & Firewall', 'all-in-one-wp-security-and-firewall')),
+				'image' => 'plugin-logos/updraft_logo.png',
 				'button_link' => 'https://wordpress.org/plugins/updraftplus/',
 				'button_meta' => 'updraftplus',
 				'dismiss_time' => 'dismiss_page_notice_until',
@@ -119,13 +119,85 @@ class AIOWPSecurity_Notices extends Updraft_Notices_1_2 {
 				'prefix' => '',
 				'title' => 'WP-Optimize',
 				'text' => __("After you've secured your site, we recommend you install our WP-Optimize plugin to streamline it for better website performance.", "all-in-one-wp-security-and-firewall"),
-				'image' => 'notices/wp_optimize_logo.png',
+				'image' => 'plugin-logos/wp_optimize_logo.png',
 				'button_link' => 'https://wordpress.org/plugins/wp-optimize/',
 				'button_meta' => 'wp-optimize',
 				'dismiss_time' => 'dismiss_notice',
 				'supported_positions' => $this->anywhere,
 				'validity_function' => 'wp_optimize_not_installed',
 			),
+
+			// The sale adverts content starts here
+			'blackfriday' => array(
+				'prefix' => '',
+				'title' => __('Black Friday Sale', 'all-in-one-wp-security-and-firewall'),
+				'text' => __('Get added protection with Premium. Scan your site for malware, downtime and response time issues. Block traffic by country of origin, get advanced two-factor authentication, premium support and more.', 'all-in-one-wp-security-and-firewall').'<br>'.sprintf(__('Get 20%% off with code %s at %s. Hurry, offer ends 28th November.', 'all-in-one-wp-security-and-firewall'), '<b>blackfridaysale2023</b>', '<a class="aiowps_notice_link" href="https://aiosplugin.com">'.__('checkout', 'all-in-one-wp-security-and-firewall').'</a>'),
+				'image' => 'notices/black_friday.png',
+				'button_link' => 'https://aiosplugin.com/bf22aiosupgrade',
+				'campaign' => 'blackfriday',
+				// 'button_meta' => 'all-in-one-wp-security-and-firewall',
+				'dismiss_time' => 'dismiss_season',
+				// 'discount_code' => '‘bf22aiosupgrade’',
+				'valid_from' => '2023-11-20 00:00:00',
+				'valid_to' => '2023-11-28 23:59:59',
+				'supported_positions' => $this->dashboard_top_or_report,
+			),
+			'newyear' => array(
+				'prefix' => '',
+				'title' => __('New Year Sale', 'all-in-one-wp-security-and-firewall'),
+				'text' => __('Get added protection with Premium. Scan your site for malware, downtime and response time issues. Block traffic by country of origin, get advanced two-factor authentication, premium support and more.', 'all-in-one-wp-security-and-firewall').'<br>'.sprintf(__('Get 20%% off with code %s at %s. Hurry, offer ends 14th January.', 'all-in-one-wp-security-and-firewall'), '<b>newyearsale2024</b>', '<a class="aiowps_notice_link" href="https://aiosplugin.com">'.__('checkout', 'all-in-one-wp-security-and-firewall').'</a>'),
+				'image' => 'notices/new_year.png',
+				'button_link' => 'https://aiosplugin.com',
+				'campaign' => 'newyear',
+				// 'button_meta' => 'all-in-one-wp-security-and-firewall',
+				'dismiss_time' => 'dismiss_season',
+				// 'discount_code' => 'newyearsale2023',
+				'valid_from' => '2023-12-26 00:00:00',
+				'valid_to' => '2024-01-14 23:59:59',
+				'supported_positions' => $this->dashboard_top_or_report,
+			),
+			'spring' => array(
+				'prefix' => '',
+				'title' => __('Spring Sale', 'all-in-one-wp-security-and-firewall'),
+				'text' => __('Get added protection with Premium. Scan your site for malware, downtime and response time issues. Block traffic by country of origin, get advanced two-factor authentication, premium support and more.', 'all-in-one-wp-security-and-firewall').'<br>'.sprintf(__('Get 20%% off with code %s at %s. Hurry, offer ends 30th April.', 'all-in-one-wp-security-and-firewall'), '<b>springsale2023</b>', '<a class="aiowps_notice_link" href="https://aiosplugin.com">'.__('checkout', 'all-in-one-wp-security-and-firewall').'</a>'),
+				'image' => 'notices/spring.png',
+				'button_link' => 'https://aiosplugin.com',
+				'campaign' => 'spring',
+				// 'button_meta' => 'all-in-one-wp-security-and-firewall',
+				'dismiss_time' => 'dismiss_season',
+				// 'discount_code' => 'springsale2023',
+				'valid_from' => '2023-04-01 00:00:00',
+				'valid_to' => '2023-04-30 23:59:59',
+				'supported_positions' => $this->dashboard_top_or_report,
+			),
+			'summer' => array(
+				'prefix' => '',
+				'title' => __('Summer Sale', 'all-in-one-wp-security-and-firewall'),
+				'text' => __('Get added protection with Premium. Scan your site for malware, downtime and response time issues. Block traffic by country of origin, get advanced two-factor authentication, premium support and more.', 'all-in-one-wp-security-and-firewall').'<br>'.sprintf(__('Get 20%% off with code %s at %s. Hurry, offer ends 31st July.', 'all-in-one-wp-security-and-firewall'), '<b>summersale2023</b>', '<a class="aiowps_notice_link" href="https://aiosplugin.com">'.__('checkout', 'all-in-one-wp-security-and-firewall').'</a>'),
+				'image' => 'notices/summer.png',
+				'button_link' => 'https://aiosplugin.com',
+				'campaign' => 'summer',
+				// 'button_meta' => 'all-in-one-wp-security-and-firewall',
+				'dismiss_time' => 'dismiss_season',
+				// 'discount_code' => 'summersale2023',
+				'valid_from' => '2023-07-01 00:00:00',
+				'valid_to' => '2023-07-31 23:59:59',
+				'supported_positions' => $this->dashboard_top_or_report,
+			),
+			'collection' => array(
+				'prefix' => '',
+				'title' => __('The Updraft Plugin Collection Sale', 'all-in-one-wp-security-and-firewall'),
+				'text' => sprintf(__('Visit any of our websites and use code %s at checkout to get 20%% off all our plugins. Be quick, offer ends 30th September.', 'all-in-one-wp-security-and-firewall'), '<b>AIOS2023</b>'),
+				'image' => 'plugin-logos/updraft_logo.png',
+				'button_link' => 'https://teamupdraft.com',
+				'campaign' => 'collection',
+				'button_meta' => 'collection',
+				'dismiss_time' => 'dismiss_season',
+				// 'discount_code' => 'AIOS2023',
+				'valid_from' => '2023-09-01 00:00:00',
+				'valid_to' => '2023-09-30 23:59:59',
+				'supported_positions' => $this->dashboard_top_or_report,
+			)
 		);
 
 		return array_merge($parent_notice_content, $child_notice_content);
@@ -202,7 +274,7 @@ class AIOWPSecurity_Notices extends Updraft_Notices_1_2 {
 			return true;
 		}
 
-		global $aio_wp_security;
+		global $aio_wp_security, $aiowps_firewall_config;
 
 		// Is notice dismissed.
 		if ('1' == $aio_wp_security->configs->get_value('dismiss_ip_retrieval_settings_notice')) {
@@ -218,7 +290,7 @@ class AIOWPSecurity_Notices extends Updraft_Notices_1_2 {
 				if (!empty($most_suitable_ip_method)) {
 					$most_suitable_ip_method_id = array_search($most_suitable_ip_method, AIOS_Abstracted_Ids::get_ip_retrieve_methods());
 					$aio_wp_security->configs->set_value('aiowps_ip_retrieve_method', $most_suitable_ip_method_id);
-					$aio_wp_security->configs->save_config();//save the value
+					$aiowps_firewall_config->set_value('aios_ip_retrieve_method', $most_suitable_ip_method_id, true);
 				}
 			}
 
@@ -231,7 +303,7 @@ class AIOWPSecurity_Notices extends Updraft_Notices_1_2 {
 			return true;
 		}
 
-		$server_user_ip_address = AIOWPSecurity_Utility_IP::get_server_detected_user_ip_address();
+		$server_user_ip_address = AIOS_Helper::get_server_detected_user_ip_address();
 		return empty($server_user_ip_address);
 	}
 
@@ -352,9 +424,9 @@ class AIOWPSecurity_Notices extends Updraft_Notices_1_2 {
 	}
 
 	/**
-	 * Get AIOWPS Plugin installation timestamp.
+	 * Get AIOS Plugin installation timestamp.
 	 *
-	 * @return integer AIOWPS Plugin installation timestamp.
+	 * @return integer AIOS Plugin installation timestamp.
 	 */
 	public function get_aiowps_plugin_installed_timestamp() {
 		$installed_at = @filemtime(AIO_WP_SECURITY_PATH.'/index.html'); // phpcs:ignore Generic.PHP.NoSilencedErrors.Discouraged

@@ -9,6 +9,8 @@
  * @subpackage sensors
  */
 
+use WSAL\Helpers\Plugins_Helper;
+
 // Exit if accessed directly.
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -30,7 +32,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * @package    wsal
  * @subpackage sensors
  */
-class WSAL_Sensors_PluginsThemes extends WSAL_AbstractSensor {
+class WSAL_Sensors_PluginsThemes {//extends WSAL_AbstractSensor {
 
 	/**
 	 * List of Themes.
@@ -95,7 +97,7 @@ class WSAL_Sensors_PluginsThemes extends WSAL_AbstractSensor {
 	 * @param string $stylesheet Stylesheet of the theme to delete.
 	 * @param bool   $deleted    Whether the theme deletion was successful.
 	 *
-	 * @since      4.4.2.1
+	 * @since 4.4.2.1
 	 *
 	 * phpcs:disable WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 	 */
@@ -165,7 +167,7 @@ class WSAL_Sensors_PluginsThemes extends WSAL_AbstractSensor {
 		$is_plugins = 'plugins' === $actype;
 
 		// Install plugin.
-		if ( in_array( $action, array( 'install-plugin', 'upload-plugin', 'run_addon_install' ), true ) && current_user_can( 'install_plugins' ) ) {
+		if ( in_array( $action, array( 'install-plugin', 'upload-plugin', 'wsal_run_addon_install' ), true ) && current_user_can( 'install_plugins' ) ) {
 			$plugin = array_merge( array_diff( array_keys( get_plugins() ), array_keys( $this->old_plugins ) ), array_diff( array_keys( $this->old_plugins ), array_keys( get_plugins() ) ) );
 
 			// Check for premium version being installed / updated.
@@ -251,10 +253,10 @@ class WSAL_Sensors_PluginsThemes extends WSAL_AbstractSensor {
 			if ( isset( $get_array['checked'] ) && ! empty( $get_array['checked'] ) ) {
 				$latest_event = $this->plugin->alerts->get_latest_events();
 				$latest_event = isset( $latest_event[0] ) ? $latest_event[0] : false;
-				$event_meta   = $latest_event ? $latest_event->get_meta_array() : false;
+				$event_meta   = $latest_event ? $latest_event['meta_values'] : false;
 
 				foreach ( $get_array['checked'] as $plugin_file ) {
-					if ( $latest_event && 5001 === $latest_event->alert_id && $event_meta && isset( $event_meta['PluginFile'] ) ) {
+					if ( $latest_event && 5001 === $latest_event['alert_id'] && $event_meta && isset( $event_meta['PluginFile'] ) ) {
 						if ( basename( WSAL_BASE_NAME ) === basename( $event_meta['PluginFile'] ) ) {
 							continue;
 						}
@@ -636,7 +638,7 @@ class WSAL_Sensors_PluginsThemes extends WSAL_AbstractSensor {
 		}
 
 		// Grab list of plugins we have addons for.
-		$predefined_plugins       = WSAL_PluginInstallAndActivate::get_installable_plugins();
+		$predefined_plugins       = Plugins_Helper::get_installable_plugins();
 		$predefined_plugins_addon = array_column( $predefined_plugins, 'addon_for' );
 		$all_plugins              = array_keys( get_plugins() );
 		foreach ( $predefined_plugins_addon as $plugin ) {
@@ -648,15 +650,15 @@ class WSAL_Sensors_PluginsThemes extends WSAL_AbstractSensor {
 				$addon_slug         = array( array_search( $plugin, array_column( $predefined_plugins, 'addon_for', 'plugin_slug' ) ) ); // phpcs:ignore
 				$is_addon_installed = array_intersect( $all_plugins, $addon_slug );
 				if ( empty( $is_addon_installed ) ) {
-					$current_value   = $this->plugin->get_global_setting( 'installed_plugin_addon_available' );
+					$current_value   = \WSAL\Helpers\Settings_Helper::get_option_value( 'installed_plugin_addon_available' );
 					$plugin_filename = array( $plugin_filename );
 					if ( isset( $current_value ) && is_array( $current_value ) ) {
 						$new_plugin_filenames = array_unique( array_merge( $current_value, $plugin_filename ) );
 					} else {
 						$new_plugin_filenames = $plugin_filename;
 					}
-					$this->plugin->set_global_setting( 'installed_plugin_addon_available', $new_plugin_filenames );
-					$this->plugin->delete_global_setting( 'addon_available_notice_dismissed' );
+					\WSAL\Helpers\Settings_Helper::set_option_value( 'installed_plugin_addon_available', $new_plugin_filenames );
+					\WSAL\Helpers\Settings_Helper::delete_option_value( 'addon_available_notice_dismissed' );
 				}
 			}
 		}
@@ -676,7 +678,7 @@ class WSAL_Sensors_PluginsThemes extends WSAL_AbstractSensor {
 		}
 
 		// Grab list of plugins we have addons for.
-		$predefined_plugins       = WSAL_PluginInstallAndActivate::get_installable_plugins();
+		$predefined_plugins       = Plugins_Helper::get_installable_plugins();
 		$predefined_plugins_addon = array_column( $predefined_plugins, 'addon_for' );
 		foreach ( $predefined_plugins_addon as $plugin ) {
 
@@ -684,7 +686,7 @@ class WSAL_Sensors_PluginsThemes extends WSAL_AbstractSensor {
 
 			// Check if plugin file starts with the same string as our addon_for, or if its equal.
 			if ( $plugin_filename === $plugin ) {
-				$current_installed = $wsal->get_global_setting( 'installed_plugin_addon_available' );
+				$current_installed = \WSAL\Helpers\Settings_Helper::get_option_value( 'installed_plugin_addon_available' );
 				if ( isset( $current_installed ) && ! empty( $current_installed ) ) {
 					$key = array_search( $plugin, $current_installed ); // phpcs:ignore
 					if ( false !== $key ) {
@@ -692,7 +694,7 @@ class WSAL_Sensors_PluginsThemes extends WSAL_AbstractSensor {
 					}
 				}
 
-				$wsal->set_global_setting( 'installed_plugin_addon_available', $current_installed );
+				\WSAL\Helpers\Settings_Helper::set_option_value( 'installed_plugin_addon_available', $current_installed );
 			}
 		}
 	}

@@ -154,6 +154,15 @@ class AIOWPSecurity_Utility_File {
 	}
 
 
+	/**
+	 * This function will perform a recursive search for files in the path that match the passed in pattern
+	 *
+	 * @param string  $pattern - the file pattern to search for
+	 * @param integer $flags   - flags to apply on the search
+	 * @param string  $path    - the path we want to search
+	 *
+	 * @return boolean|array - an array of files matching the pattern or false if there was an error (directory traversal in path) or none found
+	 */
 	public static function recursive_file_search($pattern = '*', $flags = 0, $path = '') {
 		$paths = glob($path.'*', GLOB_MARK|GLOB_ONLYDIR|GLOB_NOSORT);
 		if (false === $paths) {
@@ -470,6 +479,8 @@ class AIOWPSecurity_Utility_File {
 	 * @return string
 	 */
 	public static function get_home_path() {
+		// Make the scope of $wp_file_descriptions global, so that when wp-admin/includes/file.php assigns to it, it is adjusting the global variable as intended
+		global $wp_file_descriptions; // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		if (!function_exists('get_home_path')) require_once(ABSPATH. '/wp-admin/includes/file.php');
 		return wp_normalize_path(get_home_path());
 	}

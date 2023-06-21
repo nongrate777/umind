@@ -8,6 +8,8 @@
  * @since 3.3.1
  */
 
+use WSAL\Helpers\Settings_Helper;
+
 // Exit if accessed directly.
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -30,7 +32,7 @@ class WSAL_Utilities_Emailer {
 		$safe_url        = str_replace( array( 'http://', 'https://' ), '', $home_url );
 		$type_name       = $wsal->settings()->get_type_username(); // Get the data to display.
 		$user            = _wp_get_current_user();
-		$datetime_format = $wsal->settings()->get_datetime_format( false );
+		$datetime_format = Settings_Helper::get_datetime_format( false );
 		$now             = current_time( 'timestamp' ); // phpcs:ignore
 		$date_time       = str_replace(
 			'$$$',
@@ -95,7 +97,11 @@ class WSAL_Utilities_Emailer {
 			$email_address = self::get_emails( $email_address );
 		}
 
-		$headers = array_merge_recursive( (array) $headers, array( 'Content-Type: ' . self::set_html_content_type() . '; charset=UTF-8' ) );
+		if ( ! empty( $headers ) ) {
+			$headers = array_merge_recursive( (array) $headers, array( 'Content-Type: ' . self::set_html_content_type() . '; charset=UTF-8' ) );
+		} else {
+			$headers = array( 'Content-Type: ' . self::set_html_content_type() . '; charset=UTF-8' );
+		}
 
 		// @see: http://codex.wordpress.org/Function_Reference/wp_mail
 		add_filter( 'wp_mail_from', array( __CLASS__, 'custom_wp_mail_from' ) );

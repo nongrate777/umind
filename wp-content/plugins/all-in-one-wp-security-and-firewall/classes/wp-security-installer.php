@@ -19,12 +19,14 @@ class AIOWPSecurity_Installer {
 				foreach ($blogids as $blog_id) {
 					switch_to_blog($blog_id);
 					AIOWPSecurity_Installer::create_db_tables();
+					AIOWPSecurity_Installer::migrate_db_tables();
 					AIOWPSecurity_Configure_Settings::add_option_values();
 					restore_current_blog();
 				}
 				AIOWPSecurity_Installer::create_db_backup_dir(); //Create a backup dir in the WP uploads directory
 		} else {
 			AIOWPSecurity_Installer::create_db_tables();
+			AIOWPSecurity_Installer::migrate_db_tables();
 			AIOWPSecurity_Configure_Settings::add_option_values();
 			AIOWPSecurity_Installer::create_db_backup_dir(); //Create a backup dir in the WP uploads directory
 		}
@@ -45,22 +47,21 @@ class AIOWPSecurity_Installer {
 			 * otherwise it will contain the original blog id and not the current id we need.
 			 *
 			 */
-			$lockdown_tbl_name = $wpdb->prefix.'aiowps_login_lockdown';
-			$failed_login_tbl_name = $wpdb->prefix.'aiowps_failed_logins';
+			$lockout_tbl_name = $wpdb->prefix.'aiowps_login_lockdown';
 			$user_login_activity_tbl_name = $wpdb->prefix.'aiowps_login_activity';
 			$aiowps_global_meta_tbl_name = $wpdb->prefix.'aiowps_global_meta';
 			$aiowps_event_tbl_name = $wpdb->prefix.'aiowps_events';
 			$perm_block_tbl_name = $wpdb->prefix.'aiowps_permanent_block';
 			
 		} else {
-			$lockdown_tbl_name = AIOWPSEC_TBL_LOGIN_LOCKDOWN;
-			$failed_login_tbl_name = AIOWPSEC_TBL_FAILED_LOGINS;
+			$lockout_tbl_name = AIOWPSEC_TBL_LOGIN_LOCKOUT;
 			$user_login_activity_tbl_name = AIOWPSEC_TBL_USER_LOGIN_ACTIVITY;
 			$aiowps_global_meta_tbl_name = AIOWPSEC_TBL_GLOBAL_META_DATA;
 			$aiowps_event_tbl_name = AIOWPSEC_TBL_EVENTS;
 			$perm_block_tbl_name = AIOWPSEC_TBL_PERM_BLOCK;
 		}
 
+		$audit_log_tbl_name = AIOWPSEC_TBL_AUDIT_LOG;
 		$debug_log_tbl_name = AIOWPSEC_TBL_DEBUG_LOG;
 
 		$charset_collate = '';
@@ -73,7 +74,7 @@ class AIOWPSecurity_Installer {
 			$charset_collate .= " COLLATE $wpdb->collate";
 		}
 
-		$ld_tbl_sql = "CREATE TABLE " . $lockdown_tbl_name . " (
+		$ld_tbl_sql = "CREATE TABLE " . $lockout_tbl_name . " (
 		id bigint(20) NOT NULL AUTO_INCREMENT,
 		user_id bigint(20) NOT NULL,
 		user_login VARCHAR(150) NOT NULL,
@@ -90,19 +91,6 @@ class AIOWPSecurity_Installer {
 		  KEY unlock_key (unlock_key)
 		)" . $charset_collate . ";";
 		dbDelta($ld_tbl_sql);
-
-		$fl_tbl_sql = "CREATE TABLE " . $failed_login_tbl_name . " (
-		id bigint(20) NOT NULL AUTO_INCREMENT,
-		user_id bigint(20) NOT NULL,
-		user_login VARCHAR(150) NOT NULL,
-		failed_login_date datetime NOT NULL DEFAULT '1000-10-10 10:00:00',
-		login_attempt_ip varchar(100) NOT NULL DEFAULT '',
-		PRIMARY KEY  (id),
-		  KEY failed_login_date (failed_login_date),
-		  KEY login_attempt_ip (login_attempt_ip),
-		  KEY failed_login_date_and_login_attempt_ip (failed_login_date, login_attempt_ip)
-		)" . $charset_collate . ";";
-		dbDelta($fl_tbl_sql);
 
 		$ula_tbl_sql = "CREATE TABLE " . $user_login_activity_tbl_name . " (
 		id bigint(20) NOT NULL AUTO_INCREMENT,
@@ -161,6 +149,25 @@ class AIOWPSecurity_Installer {
 		)" . $charset_collate . ";";
 		dbDelta($pb_tbl_sql);
 
+		$audit_log_tbl_sql = "CREATE TABLE " . $audit_log_tbl_name . " (
+			id bigint(20) NOT NULL AUTO_INCREMENT,
+			network_id bigint(20) NOT NULL DEFAULT '0',
+			site_id bigint(20) NOT NULL DEFAULT '0',
+			username varchar(60) NOT NULL DEFAULT '',
+			ip VARCHAR(45) NOT NULL DEFAULT '',
+			level varchar(25) NOT NULL DEFAULT '',
+			event_type varchar(25) NOT NULL DEFAULT '',
+			details text NOT NULL DEFAULT '',
+			stacktrace text NOT NULL DEFAULT '',
+			created INTEGER UNSIGNED,
+			PRIMARY KEY  (id),
+			INDEX username (username),
+			INDEX ip (ip),
+			INDEX level (level),
+			INDEX event_type (event_type)
+			)" . $charset_collate . ";";
+		dbDelta($audit_log_tbl_sql);
+
 		$debug_log_tbl_sql = "CREATE TABLE " . $debug_log_tbl_name . " (
 			id bigint(20) NOT NULL AUTO_INCREMENT,
 			level varchar(25) NOT NULL DEFAULT '',
@@ -170,6 +177,59 @@ class AIOWPSecurity_Installer {
 			PRIMARY KEY  (id)
 			)" . $charset_collate . ";";
 		dbDelta($debug_log_tbl_sql);
+	}
+
+	/**
+	 * This function will handle any database table migrations
+	 *
+	 * @return void
+	 */
+	public static function migrate_db_tables() {
+		global $wpdb;
+
+		if (function_exists('is_multisite') && is_multisite()) {
+			/*
+			 * FIX for multisite table creation case:
+			 * Although each table name is defined in a constant inside the wp-security-core.php,
+			 * we need to do this step for multisite case because we need to refresh the $wpdb->prefix value
+			 * otherwise it will contain the original blog id and not the current id we need.
+			 *
+			 */
+			$failed_login_tbl_name = $wpdb->prefix.'aiowps_failed_logins';
+			
+		} else {
+			$failed_login_tbl_name = AIOWPSEC_TBL_FAILED_LOGINS;
+		}
+
+		$audit_log_tbl_name = AIOWPSEC_TBL_AUDIT_LOG;
+		$network_id = get_current_network_id();
+		$site_id = get_current_blog_id();
+		
+		$query = $wpdb->prepare('SHOW TABLES LIKE %s', $wpdb->esc_like($failed_login_tbl_name));
+		$table_exists = $wpdb->get_var($query);
+		if ($table_exists) {
+			$import_details = array(
+				'failed_login' => array(
+					'imported' => true,
+				)
+			);
+			$import_details = json_encode($import_details, true);
+			$table_migration_details = array(
+				'table_migration' => array(
+					'success' => true,
+					'from_table' => $failed_login_tbl_name,
+					'to_table' => $audit_log_tbl_name
+				)
+			);
+
+			if (false === $wpdb->query($wpdb->prepare("INSERT INTO $audit_log_tbl_name (network_id, site_id, username, ip, level, event_type, details, stacktrace, created) SELECT %d AS network_id, %d AS site_id, fl.user_login AS username, fl.login_attempt_ip AS ip, 'warning' AS level, 'Failed login' AS event_type, %s AS details, '' AS stacktrace, UNIX_TIMESTAMP(fl.failed_login_date) AS created FROM $failed_login_tbl_name fl", $network_id, $site_id, $import_details))) {
+				$table_migration_details['table_migration']['success'] = false;
+				do_action('aiowps_record_event', 'table_migration', $table_migration_details, 'error');
+			} else {
+				do_action('aiowps_record_event', 'table_migration', $table_migration_details, 'info');
+				$wpdb->query("DROP TABLE IF EXISTS `$failed_login_tbl_name`");
+			}
+		}
 	}
 
 	public static function create_db_backup_dir() {
@@ -201,35 +261,59 @@ class AIOWPSecurity_Installer {
 		}
 	}
 
+	/**
+	 * Restores original config settings and .htaccess file rules from before the last deactivation.
+	 *
+	 * @global AIO_WP_Security $aio_wp_security
+	 *
+	 * @return Boolean - whether or not the restoration succeeded
+	 */
 	public static function reactivation_tasks() {
 		global $aio_wp_security;
-		$temp_cfgs = get_option('aiowps_temp_configs');
-		if (false !== $temp_cfgs) {
-			//Case where previously installed plugin was reactivated
-			//Let's copy the original configs back to the options table
-			$updated = update_option('aio_wp_security_configs', $temp_cfgs);
-			if (!$updated) {
-				$aio_wp_security->debug_logger->log_debug("AIOWPSecurity_Installer::reactivation_tasks() - Update of option settings failed upon plugin activation!", 4);
-			}
-			$aio_wp_security->configs->configs = $temp_cfgs; //copy the original configs to memory
-			//Now let's write any rules to the .htaccess file if necessary
-			$res = AIOWPSecurity_Utility_Htaccess::write_to_htaccess();
 
-			if (!$res) {
-				$aio_wp_security->debug_logger->log_debug("AIOWPSecurity_Installer::reactivation_tasks() - Could not write to the .htaccess file. Please check the file permissions.", 4);
+		$temp_configs = get_option('aiowps_temp_configs');
+
+		if (false !== $temp_configs) {
+			// Case where previously installed plugin is reactivated
+			// Let's copy the original configs back to the options table
+			$updated = update_option('aio_wp_security_configs', $temp_configs);
+
+			if (!$updated) {
+				if (get_option('aio_wp_security_configs') === $temp_configs) {
+					delete_option('aiowps_temp_configs');
+					return true;
+				}
+
+				$aio_wp_security->debug_logger->log_debug('AIOWPSecurity_Installer::reactivation_tasks() - Restoration of original config settings failed.', 4);
 				return false;
 			}
+
+			// Load the restored config settings to the configs object
+			$aio_wp_security->configs->load_config();
+
+			if (is_main_site() && is_super_admin()) {
+				// Now let's write any rules to the .htaccess file if necessary
+				$result = AIOWPSecurity_Utility_Htaccess::write_to_htaccess();
+				AIOWPSecurity_Configure_Settings::reapply_firewall_configs();
+
+				if (!$result) {
+					$aio_wp_security->debug_logger->log_debug('AIOWPSecurity_Installer::reactivation_tasks() - Could not write to the .htaccess file. Please check the file permissions.', 4);
+					return false;
+				}
+			}
+
 			delete_option('aiowps_temp_configs');
+
 			return true;
 		} else {
-			$aio_wp_security->debug_logger->log_debug("AIOWPSecurity_Deactivation::run_deactivation_tasks() - Original config settings not found!", 4);
+			$aio_wp_security->debug_logger->log_debug('AIOWPSecurity_Installer::reactivation_tasks() - Original config settings not found.', 4);
 			return false;
 		}
 	}
-	
+
 	/**
-	 * Setup aiowps cron tasks
-	 * Handles both single and multi-site (NW activation) cases
+	 * Setup AIOS cron tasks.
+	 * Handles both single and multi-site (NW activation) cases.
 	 *
 	 * @global type $wpdb
 	 * @param Boolean $networkwide Whether set cronjob networkwide or normal site.
@@ -254,9 +338,9 @@ class AIOWPSecurity_Installer {
 			do_action('aiowps_activation_complete');
 		}
 	}
-	
+
 	/**
-	 * Helper function for scheduling aiowps cron events.
+	 * Helper function for scheduling AIOS cron events.
 	 *
 	 * @return Void
 	 */
@@ -269,6 +353,9 @@ class AIOWPSecurity_Installer {
 		}
 		if (!wp_next_scheduled('aiowps_daily_cron_event')) {
 			wp_schedule_event(time(), 'daily', 'aiowps_daily_cron_event'); //schedule an daily cron event
+		}
+		if (!wp_next_scheduled('aiowps_weekly_cron_event')) {
+			wp_schedule_event(time(), 'weekly', 'aiowps_weekly_cron_event'); //schedule an daily cron event
 		}
 	}
 }

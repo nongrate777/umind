@@ -6,5 +6,6 @@ $vendorDir = dirname(__DIR__);
 $baseDir = dirname($vendorDir);
 
 return array(
-    'WSAL\\' => array($baseDir . '/includes/classes'),
+    'WSAL\\Extensions\\' => array($baseDir . '/extensions'),
+    'WSAL\\' => array($baseDir . '/classes'),
 );

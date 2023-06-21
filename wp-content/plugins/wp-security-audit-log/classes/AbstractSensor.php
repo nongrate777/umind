@@ -9,6 +9,8 @@
  * @subpackage sensors
  */
 
+use WP2FA\Admin\Helpers\WP_Helper;
+
 // Exit if accessed directly.
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -35,7 +37,7 @@ abstract class WSAL_AbstractSensor {
 	 *
 	 * @var integer
 	 *
-	 * @since      4.4.2.1
+	 * @since 4.4.2.1
 	 */
 	protected static $seconds_to_check_back = 5;
 
@@ -61,7 +63,7 @@ abstract class WSAL_AbstractSensor {
 	 * @return boolean
 	 */
 	protected function is_multisite() {
-		return WpSecurityAuditLog::is_multisite();
+		return WP_Helper::is_multisite();
 	}
 
 	/**
@@ -151,10 +153,10 @@ abstract class WSAL_AbstractSensor {
 			if ( $known_to_trigger ) {
 				break;
 			}
-			if ( ! empty( $last_occurrence ) && ( $last_occurrence->created_on + self::$seconds_to_check_back ) > time() ) {
-				if ( ! is_array( $alert_id ) && $last_occurrence->alert_id === $alert_id ) {
+			if ( ! empty( $last_occurrence ) && ( $last_occurrence['created_on'] + self::$seconds_to_check_back ) > time() ) {
+				if ( ! is_array( $alert_id ) && $last_occurrence['alert_id'] === $alert_id ) {
 					$known_to_trigger = true;
-				} elseif ( is_array( $alert_id ) && in_array( $last_occurrence[0]->alert_id, $alert_id, true ) ) {
+				} elseif ( is_array( $alert_id ) && in_array( $last_occurrence[0]['alert_id'], $alert_id, true ) ) {
 					$known_to_trigger = true;
 				}
 			}

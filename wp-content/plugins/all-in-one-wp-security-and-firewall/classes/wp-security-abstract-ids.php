@@ -1,5 +1,5 @@
 <?php
-if (!defined('ABSPATH')) {
+if (!defined('ABSPATH') && !defined('AIOWPS_FIREWALL_DIR')) {
 	exit; //Exit if accessed directly
 }
 
@@ -57,4 +57,47 @@ class AIOS_Abstracted_Ids {
 			'login-whitelist-disabled-on-upgrade',
 		);
 	}
+
+	/**
+	 * Get locale codes that are more than 2 char long supported by Google ReCaptcha.
+	 *
+	 * @return array
+	 */
+	public static function get_google_recaptcha_locale_codes() {
+		/**
+		* Google reCaptcha accepts 2 char language codes and also more than 2 char language codes.
+		* Most are 2 chars in length e.g. 'ar' for Arabic.
+		* Few are more than 2 char in length e.g 'de-AT' for German (Austria)
+		*
+		* Below is the list of more than 2 char language codes supported by Google reCaptcha.
+		* if determine_locale() detects any of the below we return it, otherwise,
+		* we would return the 2 letter code.
+		*/
+		return array(
+			'zh-HK', // Chinese (Hong Kong).
+			'zh-CN', // Chinese (Simplified).
+			'zh-TW', // Chinese (Traditional).
+			'en-GB', // UK.
+			'fr-CA', // French (Canadian).
+			'de-AT', // German (Austria).
+			'de-CH', // German (Switzerland).
+			'pt-BR', // Portuguese (Brazil).
+			'pt-PT', // Portuguese (Portugal).
+		);
+	}
+
+	/**
+	 * Get IP Lookup services.
+	 *
+	 * @return array
+	 */
+	public static function get_ip_lookup_services() {
+		return array(
+			'ipify'  => 'http://api.ipify.org/',
+			'ipecho' => 'http://ipecho.net/plain',
+			'ident'  => 'http://ident.me',
+			'tnedi'	 => 'http://tnedi.me',
+		);
+	}
+
 }

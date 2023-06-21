@@ -12,6 +12,7 @@
 namespace WSAL\Utils;
 
 use \WSAL\Helpers\WP_Helper;
+use WSAL\Migration\Metadata_Migration_440;
 
 defined( 'ABSPATH' ) || exit; // Exit if accessed directly.
 
@@ -74,7 +75,7 @@ if ( ! class_exists( '\WSAL\Utils\Abstract_Migration' ) ) {
 		 *
 		 * @var string
 		 *
-		 * @since      4.4.2.1
+		 * @since 4.4.2.1
 		 */
 		protected static $const_name_of_plugin_version = '';
 
@@ -102,12 +103,12 @@ if ( ! class_exists( '\WSAL\Utils\Abstract_Migration' ) ) {
 		 */
 		public static function migrate() {
 
-			if ( class_exists( '\WSAL\Migration\Metadata_Migration_440' ) && ! empty( WP_Helper::get_global_option( \WSAL\Migration\Metadata_Migration_440::OPTION_NAME_MIGRATION_INFO, array() ) ) ) {
+			if ( class_exists( 'WSAL\Migration\Metadata_Migration_440' ) && ! empty( WP_Helper::get_global_option( Metadata_Migration_440::OPTION_NAME_MIGRATION_INFO, array() ) ) ) {
 
-				new \WSAL\Migration\Metadata_Migration_440( 'external' );
-				new \WSAL\Migration\Metadata_Migration_440( 'archive' );
+				new Metadata_Migration_440( 'external' );
+				new Metadata_Migration_440( 'archive' );
 
-				add_action( 'all_admin_notices', array( '\WSAL\Migration\Metadata_Migration_440', 'maybe_display_progress_admin_notice' ) );
+				add_action( 'all_admin_notices', array( 'WSAL\Migration\Metadata_Migration_440', 'maybe_display_progress_admin_notice' ) );
 			}
 
 			// Check if that process is not started already.
@@ -124,7 +125,7 @@ if ( ! class_exists( '\WSAL\Utils\Abstract_Migration' ) ) {
 
 					$disabled_alerts = WP_Helper::get_global_option( 'disabled-alerts', false );
 
-					$always_disabled_alerts = implode( ',', \WSAL_Settings::get_default_always_disabled_alerts() );
+					$always_disabled_alerts = implode( ',', \WSAL\Helpers\Settings_Helper::get_default_always_disabled_alerts() );
 
 					$disabled_alerts = implode( ',', \array_merge( \explode( ',', $disabled_alerts ), \explode( ',', $always_disabled_alerts ) ) );
 
@@ -136,41 +137,39 @@ if ( ! class_exists( '\WSAL\Utils\Abstract_Migration' ) ) {
 					} elseif ( $disabled_alerts !== $always_disabled_alerts ) {
 						WP_Helper::update_global_option( 'disabled-alerts', $disabled_alerts );
 					}
-				} else {
+				} elseif ( false === $migration_started ) {
 
-					if ( false === $migration_started ) {
 						WP_Helper::set_global_option( self::STARTED_MIGRATION_PROCESS, true );
-						try {
-							// set transient for the updating status - would that help ?!?
-							$method_as_version_numbers = static::get_all_migration_methods_as_numbers();
+					try {
+						// set transient for the updating status - would that help ?!?
+						$method_as_version_numbers = static::get_all_migration_methods_as_numbers();
 
-							$migrate_methods = array_filter(
-								$method_as_version_numbers,
-								function( $method, $key ) use ( &$stored_version_as_number, &$target_version_as_number ) {
+						$migrate_methods = array_filter(
+							$method_as_version_numbers,
+							function( $method, $key ) use ( &$stored_version_as_number, &$target_version_as_number ) {
 
-									if ( ( ( (int) $target_version_as_number ) / 1000 ) > ( ( (int) $stored_version_as_number ) / 1000 ) ) {
-										return ( in_array( $key, range( $stored_version_as_number, $target_version_as_number ), true ) );
-									}
-
-									return false;
-								},
-								ARRAY_FILTER_USE_BOTH
-							);
-
-							if ( ! empty( $migrate_methods ) ) {
-								\ksort( $migrate_methods );
-								foreach ( $migrate_methods as $method ) {
-									static::{$method}();
+								if ( ( ( (int) $target_version_as_number ) / 1000 ) > ( ( (int) $stored_version_as_number ) / 1000 ) ) {
+									return ( in_array( $key, range( $stored_version_as_number, $target_version_as_number ), true ) );
 								}
-							}
 
-							self::store_updated_version();
-						} finally {
-							\WSAL\Helpers\WP_Helper::delete_global_option( self::STARTED_MIGRATION_PROCESS );
+								return false;
+							},
+							ARRAY_FILTER_USE_BOTH
+						);
+
+						if ( ! empty( $migrate_methods ) ) {
+							\ksort( $migrate_methods );
+							foreach ( $migrate_methods as $method ) {
+								static::{$method}();
+							}
 						}
+
+						self::store_updated_version();
+					} finally {
+						\WSAL\Helpers\WP_Helper::delete_global_option( self::STARTED_MIGRATION_PROCESS );
 					}
 				}
-		 	}
+			}
 
 			/**
 			 * Downgrading the plugin? Set the version number.
@@ -178,7 +177,7 @@ if ( ! class_exists( '\WSAL\Utils\Abstract_Migration' ) ) {
 			 *
 			 * @return void
 			 *
-			 * @since      4.4.2.1
+			 * @since 4.4.2.1
 			 */
 			if ( false === $migration_started && version_compare( static::get_stored_version(), \constant( static::$const_name_of_plugin_version ), '>' ) ) {
 				self::store_updated_version();
@@ -192,7 +191,7 @@ if ( ! class_exists( '\WSAL\Utils\Abstract_Migration' ) ) {
 		 *
 		 * @return void
 		 *
-		 * @since      4.4.2.1
+		 * @since 4.4.2.1
 		 */
 		public static function remove_notice( string $notice ) {
 
@@ -203,7 +202,6 @@ if ( ! class_exists( '\WSAL\Utils\Abstract_Migration' ) ) {
 					$notice
 				)
 			);
-
 		}
 
 		/**

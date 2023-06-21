@@ -1,7 +1,7 @@
 <?php
 $fields = get_fields();
 
-$banner_style = !empty($fields['image']) ? ' style="background-image: url(' . $fields['image']['url'] . ')"' : '';
+$banner_style = !empty($fields['image']) ? ' style="background-size: 520px; background-position: 90% 50%; background-image: url(' . $fields['image']['url'] . ')"' : '';
 ?>
 
 <section class="banner"<?php echo $banner_style; ?>>

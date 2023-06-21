@@ -106,7 +106,7 @@ class Simba_Two_Factor_Authentication_1 {
 
 		add_action('wp_ajax_simbatfa_shared_ajax', array($this, 'shared_ajax'));
 
-		require_once($this->includes_dir().'/login-form-integrations.php');
+		if (!class_exists('Simba_TFA_Login_Form_Integrations')) require_once($this->includes_dir().'/login-form-integrations.php');
 		new Simba_TFA_Login_Form_Integrations($this);
 
 		// Add TFA column on admin users list
@@ -125,6 +125,8 @@ class Simba_Two_Factor_Authentication_1 {
 		if (!defined('TWO_FACTOR_DISABLE') || !TWO_FACTOR_DISABLE) {
 			add_filter('authenticate', array($this, 'tfaVerifyCodeAndUser'), 99999999999, 3);
 		}
+		
+		add_action('show_user_profile', array($this, 'show_user_profile'), 1);
 
 		if (defined('DOING_AJAX') && DOING_AJAX && defined('WP_ADMIN') && WP_ADMIN && !empty($_REQUEST['action']) && 'simbatfa-init-otp' == $_REQUEST['action']) {
 			// Try to prevent PHP notices breaking the AJAX conversation
@@ -135,6 +137,18 @@ class Simba_Two_Factor_Authentication_1 {
 		}
 	}
 
+	/**
+	 * Runs upon the WP action show_user_profile
+	 *
+	 * @param WP_User $user - the user that the profile is for
+	 */
+	public function show_user_profile($user) {
+		if ($user->ID !== get_current_user_id() || !$this->is_activated_for_user($user->ID)) return;
+		echo '<h2>'.__('Two Factor Authentication', 'all-in-one-wp-security-and-firewall').'</h2>';
+		$settings_url = admin_url('admin.php').'?page='.$this->get_user_settings_page_slug();
+		printf('<a target="_blank" href="%s">%s</a>', $settings_url, __('Go here for your two factor authentication settings...', 'all-in-one-wp-security-and-firewall'));
+	}
+	
 	/**
 	 * Runs upon the WP filter admin_menu
 	 */
@@ -295,11 +309,12 @@ class Simba_Two_Factor_Authentication_1 {
 	 * Enqueue CSS styling on the users page
 	 */
 	public function load_users_css() {
+		$css_version = (defined('WP_DEBUG') && WP_DEBUG) ? time() : filemtime($this->includes_dir().'/users.css');
 		wp_enqueue_style(
 			'tfa-users-css',
 			$this->includes_url().'/users.css',
 			array(),
-			$this->version,
+			$css_version,
 			'screen'
 		);
 	}
@@ -334,10 +349,10 @@ class Simba_Two_Factor_Authentication_1 {
 				$value = '&#8212;';
 			} elseif ($this->is_activated_by_user($user_id)) {
 				// Use value.
-				$value = '<span title="' . __( 'Enabled', 'all-in-one-wp-security-and-firewall' ) . '" class="dashicons dashicons-yes"></span>';
+				$value = '<span title="'.__('Enabled', 'all-in-one-wp-security-and-firewall').'" class="dashicons dashicons-yes"></span>';
 			} else {
 				// No group.
-				$value = '<span title="' . __( 'Disabled', 'all-in-one-wp-security-and-firewall' ) . '" class="dashicons dashicons-no"></span>';
+				$value = '<span title="'.__('Disabled', 'all-in-one-wp-security-and-firewall').'" class="dashicons dashicons-no"></span>';
 			}
 		}
 
@@ -355,32 +370,100 @@ class Simba_Two_Factor_Authentication_1 {
 	}
 
 	/**
-	 * Runs upon the WP action admin_init
+	 * Returns all two factor authentication setting name => group pairs.
+	 *
+	 * @return Array
 	 */
-	public function register_two_factor_auth_settings() {
+	private function get_config_keys() {
 		global $wp_roles;
+
 		if (!isset($wp_roles)) $wp_roles = new WP_Roles();
 
+		$keys = array(
+			'tfa_requireafter' => 'tfa_user_roles_required_group',
+			'tfa_require_enforce_after' => 'tfa_user_roles_required_group',
+			'tfa_if_required_redirect_to' => 'tfa_user_roles_required_group',
+			'tfa_hide_turn_off' => 'tfa_user_roles_required_group',
+			'tfa_trusted_for' => 'tfa_user_roles_trusted_group',
+			'tfa_wc_add_section' => 'simba_tfa_woocommerce_group',
+			'tfa_bot_protection' => 'simba_tfa_woocommerce_group',
+			'tfa_default_hmac' => 'simba_tfa_default_hmac_group',
+			'tfa_xmlrpc_on' => 'tfa_xmlrpc_status_group',
+		);
+
 		foreach ($wp_roles->role_names as $id => $name) {
-			register_setting('tfa_user_roles_group', 'tfa_'.$id);
-			register_setting('tfa_user_roles_trusted_group', 'tfa_trusted_'.$id);
-			register_setting('tfa_user_roles_required_group', 'tfa_required_'.$id);
+			$keys['tfa_'.$id] = 'tfa_user_roles_group';
+			$keys['tfa_trusted_'.$id] = 'tfa_user_roles_trusted_group';
+			$keys['tfa_required_'.$id] = 'tfa_user_roles_required_group';
 		}
 
 		if (is_multisite()) {
-			register_setting('tfa_user_roles_group', 'tfa__super_admin');
-			register_setting('tfa_user_roles_trusted_group', 'tfa_trusted__super_admin');
-			register_setting('tfa_user_roles_required_group', 'tfa_required__super_admin');
+			$keys['tfa__super_admin'] = 'tfa_user_roles_group';
+			$keys['tfa_trusted__super_admin'] = 'tfa_user_roles_trusted_group';
+			$keys['tfa_required__super_admin'] = 'tfa_user_roles_required_group';
 		}
 
-		register_setting('tfa_user_roles_required_group', 'tfa_requireafter');
-		register_setting('tfa_user_roles_required_group', 'tfa_if_required_redirect_to');
-		register_setting('tfa_user_roles_required_group', 'tfa_hide_turn_off');
-		register_setting('tfa_user_roles_trusted_group', 'tfa_trusted_for');
-		register_setting('simba_tfa_woocommerce_group', 'tfa_wc_add_section');
-		register_setting('simba_tfa_woocommerce_group', 'tfa_bot_protection');
-		register_setting('simba_tfa_default_hmac_group', 'tfa_default_hmac');
-		register_setting('tfa_xmlrpc_status_group', 'tfa_xmlrpc_on');
+		return $keys;
+	}
+
+	/**
+	 * Registers all two factor authentication settings. Runs upon the WP action admin_init.
+	 */
+	public function register_two_factor_auth_settings() {
+		$config_keys = $this->get_config_keys();
+
+		foreach ($config_keys as $name => $group) {
+			register_setting($group, $name);
+		}
+	}
+
+	/**
+	 * Returns all two factor authentication options from the WP database.
+	 *
+	 * @return Array
+	 */
+	public function get_configs() {
+		$config_keys = $this->get_config_keys();
+
+		$configs = array();
+
+		foreach (array_keys($config_keys) as $name) {
+			if (false !== $this->get_option($name)) {
+				$configs[$name] = $this->get_option($name);
+			}
+		}
+
+		return $configs;
+	}
+
+	/**
+	 * Sets two factor authentication options from array.
+	 *
+	 * @param Array $configs
+	 *
+	 * @return Boolean
+	 */
+	public function set_configs($configs) {
+		$result = false;
+
+		foreach ($configs as $key => $value) {
+			$result = $this->update_option($key, $value) ? true : $result;
+		}
+
+		return $result;
+	}
+
+	/**
+	 * Deletes all two factor authentication options from the WP database.
+	 *
+	 * @return Void
+	 */
+	public function delete_configs() {
+		$config_keys = $this->get_config_keys();
+
+		foreach (array_keys($config_keys) as $name) {
+			$this->delete_option($name);
+		}
 	}
 
 	/**
@@ -548,7 +631,7 @@ class Simba_Two_Factor_Authentication_1 {
 			'ip' => $_SERVER['REMOTE_ADDR'],
 			'until' => $until,
 			'user_agent' => empty($_SERVER['HTTP_USER_AGENT']) ? '' : (string) $_SERVER['HTTP_USER_AGENT'],
-								   'token' => $token
+			'token' => $token
 		);
 
 		$this->user_set_trusted_devices($user_id, $trusted_devices);
@@ -1042,6 +1125,47 @@ class Simba_Two_Factor_Authentication_1 {
 	}
 
 	/**
+	 * Updates an option.
+	 *
+	 * @param String $key   - option key
+	 * @param Mixed  $value - option value
+	 *
+	 * @return Boolean
+	 */
+	public function update_option($key, $value) {
+		if (!is_multisite()) return update_option($key, $value);
+
+		$main_site_id = function_exists('get_main_site_id') ? get_main_site_id() : 1;
+		$update_option_site_id = apply_filters('simba_tfa_update_option_site_id', $main_site_id);
+
+		switch_to_blog($update_option_site_id);
+		$result = update_option($key, $value);
+		restore_current_blog();
+
+		return $result;
+	}
+
+	/**
+	 * Deletes an option.
+	 *
+	 * @param String $key - option key
+	 *
+	 * @return Boolean
+	 */
+	public function delete_option($key) {
+		if (!is_multisite()) return delete_option($key);
+
+		$main_site_id = function_exists('get_main_site_id') ? get_main_site_id() : 1;
+		$delete_option_site_id = apply_filters('simba_tfa_delete_option_site_id', $main_site_id);
+
+		switch_to_blog($delete_option_site_id);
+		$result = delete_option($key);
+		restore_current_blog();
+
+		return $result;
+	}
+
+	/**
 	 * Paint a list of checkboxes, one for each role
 	 *
 	 * @param String  $prefix
@@ -1055,7 +1179,7 @@ class Simba_Two_Factor_Authentication_1 {
 			$setting = $this->get_option('tfa_'.$prefix.$id);
 			$setting = ($setting === false) ? $default : ($setting ? 1 : 0);
 
-			echo '<input type="checkbox" id="tfa_'.$prefix.$id.'" name="tfa_'.$prefix.$id.'" value="1" '.($setting ? 'checked="checked"' :'').'> <label for="tfa_'.$prefix.$id.'">'.htmlspecialchars($name)."</label><br>\n";
+			echo '<input type="checkbox" id="tfa_'.$prefix.$id.'" name="tfa_'.$prefix.$id.'" class="tfa_'.$prefix.'user_roles" value="1" '.($setting ? 'checked="checked"' :'').'> <label for="tfa_'.$prefix.$id.'">'.htmlspecialchars($name)."</label><br>\n";
 		}
 
 		global $wp_roles;
@@ -1065,7 +1189,7 @@ class Simba_Two_Factor_Authentication_1 {
 			$setting = $this->get_option('tfa_'.$prefix.$id);
 			$setting = ($setting === false) ? $default : ($setting ? 1 : 0);
 
-			echo '<input type="checkbox" id="tfa_'.$prefix.$id.'" name="tfa_'.$prefix.$id.'" value="1" '.($setting ? 'checked="checked"' :'').'> <label for="tfa_'.$prefix.$id.'">'.htmlspecialchars($name)."</label><br>\n";
+			echo '<input type="checkbox" id="tfa_'.$prefix.$id.'" name="tfa_'.$prefix.$id.'" class="tfa_'.$prefix.'user_roles" value="1" '.($setting ? 'checked="checked"' :'').'> <label for="tfa_'.$prefix.$id.'">'.htmlspecialchars(translate_user_role($name))."</label><br>\n";
 		}
 
 	}
@@ -1117,38 +1241,58 @@ class Simba_Two_Factor_Authentication_1 {
 			$response = $wpdb->get_row($wpdb->prepare("SELECT ID, user_registered from ".$wpdb->users." WHERE user_login=%s", $params['log']));
 		}
 
-		$user_ID = is_object($response) ? $response->ID : false;
+		$user_id = is_object($response) ? $response->ID : false;
 		$user_registered = is_object($response) ? $response->user_registered : false;
 
 		$user_code = isset($params['two_factor_code']) ? str_replace(' ', '', trim($params['two_factor_code'])) : '';
 
 		// This condition in theory should not be possible
-		if (!$user_ID) return new WP_Error('tfa_user_not_found', apply_filters('simbatfa_tfa_user_not_found', '<strong>'.__('Error:', 'all-in-one-wp-security-and-firewall').'</strong> '.__('The indicated user could not be found.', 'all-in-one-wp-security-and-firewall')));
+		if (!$user_id) return new WP_Error('tfa_user_not_found', apply_filters('simbatfa_tfa_user_not_found', '<strong>'.__('Error:', 'all-in-one-wp-security-and-firewall').'</strong> '.__('The indicated user could not be found.', 'all-in-one-wp-security-and-firewall')));
 
-		if (!$this->is_activated_for_user($user_ID)) return 1;
+		if (!$this->is_activated_for_user($user_id)) return 1;
 
-		if (!empty($params['trust_token']) && $this->user_trust_token_valid($user_ID, $params['trust_token'])) {
+		if (!empty($params['trust_token']) && $this->user_trust_token_valid($user_id, $params['trust_token'])) {
 			return 1;
 		}
 
-		if (!$this->is_activated_by_user($user_ID)) {
+		if (!$this->is_activated_by_user($user_id)) {
 
-			if (!$this->is_required_for_user($user_ID)) return 1;
+			if (!$this->is_required_for_user($user_id)) return 1;
+
+			$enforce_require_after_check = true;
+			
+			$require_enforce_after = $this->get_option('tfa_require_enforce_after');
+			
+			// Don't enforce if the setting has never been saved
+			if (is_string($require_enforce_after) && preg_match('#^(\d+)-(\d+)-(\d+)$#', $require_enforce_after, $enforce_matches)) {
+				
+				// wp_date() is WP 5.3+, but performs translation into the site locale
+				$current_date = function_exists('wp_date') ? wp_date('Y-m-d') : get_date_from_gmt(gmdate('Y-m-d H:i:s'), 'Y-m-d');
+				
+				if (preg_match('#^(\d+)-(\d+)-(\d+)$#', $current_date, $current_date_matches)) {
+					if ($current_date_matches[0] < $enforce_matches[0] || ($current_date_matches[0] == $enforce_matches[0] && ($current_date_matches[1] < $enforce_matches[1] || ($current_date_matches[1] == $enforce_matches[1] && $current_date_matches[2] < $enforce_matches[2])))) {
+						// Enforcement not yet begun; skip
+						$enforce_require_after_check = false;
+					}
+				}
+				
+			}
 
 			$require_after = absint($this->get_option('tfa_requireafter')) * 86400;
 
 			$account_age = time() - strtotime($user_registered);
 
-			if ($account_age > $require_after && apply_filters('simbatfa_enforce_require_after_check', true, $user_ID, $require_after, $account_age)) {
+			if ($account_age > $require_after && apply_filters('simbatfa_enforce_require_after_check', $enforce_require_after_check, $user_id, $require_after, $account_age)) {
+				
 				return new WP_Error('tfa_required', apply_filters('simbatfa_notfa_forbidden_login', '<strong>'.__('Error:', 'all-in-one-wp-security-and-firewall').'</strong> '.__('The site owner has forbidden you to login without two-factor authentication. Please contact the site owner to re-gain access.', 'all-in-one-wp-security-and-firewall')));
 			}
 
 			return 1;
 		}
 
-		$tfa_creds_user_id = !empty($params['creds_user_id']) ? $params['creds_user_id'] : $user_ID;
+		$tfa_creds_user_id = !empty($params['creds_user_id']) ? $params['creds_user_id'] : $user_id;
 
-		if ($tfa_creds_user_id != $user_ID) {
+		if ($tfa_creds_user_id != $user_id) {
 
 			// Authenticating using a different user's credentials (e.g. https://wordpress.org/plugins/use-administrator-password/)
 			// In this case, we require that different user to have TFA active - so that this mechanism can't be used to avoid TFA
@@ -1297,7 +1441,7 @@ class Simba_Two_Factor_Authentication_1 {
 
 		if (!file_exists($template_file)) {
 			error_log("TFA: template not found: $template_file (from $path)");
-			echo __('Error:', 'all-in-one-wp-security-and-firewall').' '.__('two-factor-authentication', 'wp-optimize')." (".$path.")";
+			echo __('Error:', 'all-in-one-wp-security-and-firewall').' '.__('Template path not found:', 'all-in-one-wp-security-and-firewall')." (".htmlspecialchars($path).")";
 		} else {
 			extract($extract_these);
 			// The following are useful variables which can be used in the template.

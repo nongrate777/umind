@@ -1,0 +1,39 @@
+.black {
+  background-color: $black;
+  color: $white;
+  padding: 130px 0;
+
+  h2 {
+    font-weight: 700;
+    font-size: 50px;
+    line-height: 110%;
+    text-align: center;
+  }
+
+  &__description {
+    text-align: center;
+    font-weight: 500;
+    font-size: 15px;
+    line-height: 150%;
+    color: rgba(255, 255, 255, 0.8);
+    padding-top: 10px;
+  }
+
+  &__bottom_title {
+    font-style: normal;
+    font-weight: 700;
+    font-size: 50px;
+    line-height: 120%;
+    text-align: center;
+  }
+
+  &__bottom_link {
+    font-weight: 700;
+    font-size: 24px;
+    line-height: 130%;
+    text-align: center;
+    a{
+      color: $white;
+    }
+  }
+}

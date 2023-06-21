@@ -14,7 +14,7 @@ class AIOWPSecurity_User_Login {
 		add_filter('authenticate', array($this, 'block_ip_if_locked'), 1, 1);
 		// Check whether user needs to be manually approved after default WordPress authenticate hooks (with priority 20).
 		add_filter('authenticate', array($this, 'check_manual_registration_approval'), 30, 1);
-		// Check login captcha
+		// Check login CAPTCHA
 		if ($aio_wp_security->configs->get_value('aiowps_enable_login_captcha')) {
 			add_filter('authenticate', array($this, 'check_captcha'), 20, 1);
 		}
@@ -25,7 +25,7 @@ class AIOWPSecurity_User_Login {
 		add_filter('login_message', array($this, 'aiowps_login_message')); //WP filter to add or modify messages on the login page
 
 		// Display disable lockdown message
-		if (is_admin() && current_user_can(AIOWPSEC_MANAGEMENT_PERMISSION) && $aio_wp_security->is_login_lockdown_by_const() && $this->is_admin_page_to_display_disable_login_lockdown_by_const_notice()) {
+		if (is_admin() && AIOWPSecurity_Utility_Permissions::has_manage_cap() && $aio_wp_security->is_login_lockdown_by_const() && $this->is_admin_page_to_display_disable_login_lockdown_by_const_notice()) {
 			add_action('all_admin_notices', array($this, 'disable_login_lockdown_by_const_notice'));
 		}
 	}
@@ -62,16 +62,16 @@ class AIOWPSecurity_User_Login {
 	 */
 	public function disable_login_lockdown_by_const_notice() {
 
-		if (!AIOWPSecurity_Utility::has_manage_cap()) {
+		if (!AIOWPSecurity_Utility_Permissions::has_manage_cap()) {
 			return;
 		}
 
 		echo '<div class="notice notice-error">
 					<p>'.
-						__('You have disabled login lockdown by defining the AIOWPS_DISABLE_LOGIN_LOCKDOWN constant value as true, and the login lockdown setting has enabled it.', 'all-in-one-wp-security-and-firewall') . '&nbsp;' .
+						__('You have disabled login lockout by defining the AIOS_DISABLE_LOGIN_LOCKOUT constant value as true, and the login lockout setting has enabled it.', 'all-in-one-wp-security-and-firewall') . ' ' .
 						/* translators: 1: Locked IP Addresses admin page link */
-						sprintf(__('Delete your login lockdown IP from %s and define the AIOWPS_DISABLE_LOGIN_LOCKDOWN constant value as false.', 'all-in-one-wp-security-and-firewall'),
-							'<a href="'.admin_url('admin.php?page=aiowpsec&tab=tab2').'">' . __('Locked IP Addresses', 'all-in-one-wp-security-and-firewall') . '</a>'
+						sprintf(__('Delete your login lockout IP from %s and define the AIOS_DISABLE_LOGIN_LOCKOUT constant value as false.', 'all-in-one-wp-security-and-firewall'),
+							'<a href="'.admin_url('admin.php?page=aiowpsec&tab=tab2').'">' . __('Locked IP addresses', 'all-in-one-wp-security-and-firewall') . '</a>'
 						).
 					'</p>
 				</div>';
@@ -105,14 +105,14 @@ class AIOWPSecurity_User_Login {
 				$error_msg .= $unlock_form;
 			}
 			$error_msg = apply_filters('aiowps_ip_blocked_output_page', $error_msg, $unlock_form); //filter the complete output of the locked page
-			wp_die($error_msg, __('Service Temporarily Unavailable', 'all-in-one-wp-security-and-firewall'), 503);
+			wp_die($error_msg, __('Service temporarily unavailable', 'all-in-one-wp-security-and-firewall'), 503);
 		} else {
 			return $user;
 		}
 	}
 
 	/**
-	 * Check login captcha (if enabled).
+	 * Check login CAPTCHA (if enabled).
 	 *
 	 * @global AIO_WP_Security $aio_wp_security
 	 * @param WP_Error|WP_User $user
@@ -131,7 +131,7 @@ class AIOWPSecurity_User_Login {
 		}
 
 		if ($aio_wp_security->configs->get_value('aiowps_enable_login_captcha') != '1') {
-			// Captcha not enabled, nothing to do here.
+			// CAPTCHA not enabled, nothing to do here.
 			return $user;
 		}
 		$captcha_error = new WP_Error('authentication_failed', __('<strong>ERROR</strong>: Your answer was incorrect - please try again.', 'all-in-one-wp-security-and-firewall'));
@@ -193,14 +193,13 @@ class AIOWPSecurity_User_Login {
 			return $user;
 		}
 		// Login failed for non-trivial reason
-		$this->increment_failed_logins($username);
+		AIOWPSecurity_Audit_Events::event_failed_login($username);
 		if ($aio_wp_security->configs->get_value('aiowps_enable_login_lockdown') == '1') {
 			$is_whitelisted = false;
-			//check if lockdown whitelist enabled
+			//check if lockout whitelist enabled
 			if ($aio_wp_security->configs->get_value('aiowps_lockdown_enable_whitelisting') == '1') {
-				$ip = AIOWPSecurity_Utility_IP::get_user_ip_address(); //Get the IP address of user
 				$whitelisted_ips = $aio_wp_security->configs->get_value('aiowps_lockdown_allowed_ip_addresses');
-				$is_whitelisted = AIOWPSecurity_Utility_IP::is_ip_whitelisted($ip, $whitelisted_ips);
+				$is_whitelisted = AIOWPSecurity_Utility_IP::is_userip_whitelisted($whitelisted_ips);
 			}
 
 			if (false === $is_whitelisted) {
@@ -250,7 +249,7 @@ class AIOWPSecurity_User_Login {
 	 */
 	public function check_locked_user() {
 		global $wpdb;
-		$login_lockdown_table = AIOWPSEC_TBL_LOGIN_LOCKDOWN;
+		$login_lockdown_table = AIOWPSEC_TBL_LOGIN_LOCKOUT;
 		$ip = AIOWPSecurity_Utility_IP::get_user_ip_address(); //Get the IP address of user
 		if (empty($ip)) return false;
 		$now = current_time('mysql', true);
@@ -258,20 +257,20 @@ class AIOWPSecurity_User_Login {
 		return $locked_user;
 	}
 	/**
-	 * This function queries the aiowps_failed_logins table and returns the number of failures for current IP range within allowed failure period
+	 * This function queries the aiowps_audit_log table and returns the number of failures for current IP range within allowed failure period
 	 */
 	public function get_login_fail_count() {
 
 		global $wpdb, $aio_wp_security;
 		
-		$failed_logins_table = AIOWPSEC_TBL_FAILED_LOGINS;
-		$login_retry_interval = $aio_wp_security->configs->get_value('aiowps_retry_time_period');
-		$now = current_time('mysql', true);
-		$ip = AIOWPSecurity_Utility_IP::get_user_ip_address(); //Get the IP address of user
+		$audit_log_table = AIOWPSEC_TBL_AUDIT_LOG;
+		$login_retry_interval = $aio_wp_security->configs->get_value('aiowps_retry_time_period') * 60;
+		$now = time();
+		$ip = AIOWPSecurity_Utility_IP::get_user_ip_address(); // Get the users IP address
 
 		if (empty($ip)) return false;
 
-		$login_failures = $wpdb->get_var("SELECT COUNT(ID) FROM $failed_logins_table " . "WHERE failed_login_date + INTERVAL " . esc_sql($login_retry_interval) . " MINUTE > '" . esc_sql($now) . "' AND " . "login_attempt_ip = '" . esc_sql($ip) . "'");
+		$login_failures = $wpdb->get_var("SELECT COUNT(ID) FROM $audit_log_table " . "WHERE created + " . esc_sql($login_retry_interval) . " > '" . esc_sql($now) . "' AND " . "ip = '" . esc_sql($ip) . "' AND event_type = 'failed_login'");
 		return $login_failures;
 	}
 
@@ -306,7 +305,7 @@ class AIOWPSecurity_User_Login {
 	 */
 	public function lock_the_user($username, $lock_reason = 'login_fail', $is_lockout_email_sent = 0) {
 		global $wpdb, $aio_wp_security;
-		$login_lockdown_table = AIOWPSEC_TBL_LOGIN_LOCKDOWN;
+		$login_lockdown_table = AIOWPSEC_TBL_LOGIN_LOCKOUT;
 		$lock_minutes = $this->get_dynamic_lockout_time_length();
 		$ip = AIOWPSecurity_Utility_IP::get_user_ip_address(); //Get the IP address of user
 		if (empty($ip)) return;
@@ -343,33 +342,6 @@ class AIOWPSecurity_User_Login {
 			$aio_wp_security->debug_logger->log_debug("The following IP address range has been locked out for exceeding the maximum login attempts: ".$ip_range, 2);//Log the lockdown event
 		}
 	}
-	/**
-	 * Adds an entry to the `aiowps_failed_logins` table.
-	 *
-	 * @param string $username User's username or email
-	 */
-	public function increment_failed_logins($username) {
-		global $wpdb, $aio_wp_security;
-		$login_fails_table = AIOWPSEC_TBL_FAILED_LOGINS;
-		$ip = AIOWPSecurity_Utility_IP::get_user_ip_address(); //Get the IP address of user
-		if (empty($ip)) return;
-		$user = is_email($username) ? get_user_by('email', $username) : get_user_by('login', $username); //Returns WP_User object if it exists
-		if ($user) {
-			//If the login attempt was made using a valid user set variables for DB storage later on
-			$user_id = $user->ID;
-		} else {
-			//If the login attempt was made using a non-existent user then let's set user_id to blank and record the attempted user login name for DB storage later on
-			$user_id = 0;
-		}
-		$ip_str = esc_sql($ip);
-		$now = current_time('mysql', true);
-		$data = array('user_id' => $user_id, 'user_login' => $username, 'failed_login_date' => $now, 'login_attempt_ip' => $ip_str);
-		$format = array('%d', '%s', '%s', '%s');
-		$result = $wpdb->insert($login_fails_table, $data, $format);
-		if (false === $result) {
-			$aio_wp_security->debug_logger->log_debug("Error inserting record into ".$login_fails_table, 4);//Log the highly unlikely event of DB error
-		}
-	}
 
 	/**
 	 * Send IP Lock notification.
@@ -390,13 +362,13 @@ class AIOWPSecurity_User_Login {
 					$to_email_address = array(get_site_option('admin_email'));
 				}
 				$subject = '['.get_option('home').'] '. __('Site Lockout Notification', 'all-in-one-wp-security-and-firewall');
-				$email_msg = __('Lockdown events had occurred due to too many failed login attempts or invalid username:', 'all-in-one-wp-security-and-firewall')."\n\n";
+				$email_msg = __('User login lockout events had occurred due to too many failed login attempts or invalid username:', 'all-in-one-wp-security-and-firewall')."\n\n";
 			
 				foreach ($lockout_ips_list as $lockout_ip) {
 					$email_msg .= __('Username:', 'all-in-one-wp-security-and-firewall') . ' ' . $lockout_ip['username'] . "\n";
-					$email_msg .= __('IP Address:', 'all-in-one-wp-security-and-firewall') . ' ' . $lockout_ip['ip'] . "\n";
+					$email_msg .= __('IP address:', 'all-in-one-wp-security-and-firewall') . ' ' . $lockout_ip['ip'] . "\n";
 					if ('' != $lockout_ip['ip_range']) {
-						$email_msg .= __('IP Range:', 'all-in-one-wp-security-and-firewall') . ' ' . $lockout_ip['ip_range'] . '.*' . "\n";
+						$email_msg .= __('IP range:', 'all-in-one-wp-security-and-firewall') . ' ' . $lockout_ip['ip_range'] . '.*' . "\n";
 					}
 					$email_msg .= "\n";
 				}
@@ -426,18 +398,18 @@ class AIOWPSecurity_User_Login {
 	 * @return string or false on failure
 	 */
 	public static function generate_unlock_request_link($ip_range) {
-		//Get the locked user row from lockdown table
+		//Get the locked user row from locout table
 		global $wpdb, $aio_wp_security;
 		$unlock_link = '';
-		$lockdown_table_name = AIOWPSEC_TBL_LOGIN_LOCKDOWN;
+		$lockout_table_name = AIOWPSEC_TBL_LOGIN_LOCKOUT;
 		$secret_rand_key = (md5(uniqid(rand(), true)));
 		$unlock_request_date_time = current_time('mysql', true);
-		$res = $wpdb->query($wpdb->prepare("UPDATE $lockdown_table_name SET unlock_key = %s WHERE release_date > %s AND failed_login_ip LIKE %s", $secret_rand_key, $unlock_request_date_time, "%" . esc_sql($ip_range) . "%"));
+		$res = $wpdb->query($wpdb->prepare("UPDATE $lockout_table_name SET unlock_key = %s WHERE release_date > %s AND failed_login_ip LIKE %s", $secret_rand_key, $unlock_request_date_time, "%" . esc_sql($ip_range) . "%"));
 		if (null == $res) {
 			$aio_wp_security->debug_logger->log_debug("No locked user found with IP range ".$ip_range, 4);
 			return false;
 		} else {
-			//Check if unlock request or submitted from a woocommerce account login page
+			// Check if unlock request or submitted from a WooCommerce account login page
 			if (isset($_POST['aiowps-woo-login'])) {
 				$date_time = current_time('mysql');
 				$data = array('date_time' => $date_time, 'meta_key1' => 'woo_unlock_request_key', 'meta_value1' => $secret_rand_key);
@@ -463,14 +435,14 @@ class AIOWPSecurity_User_Login {
 	 */
 	public static function process_unlock_request($unlock_key) {
 		global $wpdb, $aio_wp_security;
-		$lockdown_table_name = AIOWPSEC_TBL_LOGIN_LOCKDOWN;
+		$lockout_table_name = AIOWPSEC_TBL_LOGIN_LOCKOUT;
 		$unlock_request_date_time = current_time('mysql', true);
-		$unlock_command = $wpdb->prepare("UPDATE ".$lockdown_table_name." SET release_date = %s WHERE unlock_key = %s", $unlock_request_date_time, $unlock_key);
+		$unlock_command = $wpdb->prepare("UPDATE ".$lockout_table_name." SET release_date = %s WHERE unlock_key = %s", $unlock_request_date_time, $unlock_key);
 		$result = $wpdb->query($unlock_command);
 		if (false === $result) {
 			$aio_wp_security->debug_logger->log_debug("Error unlocking user with unlock_key ".$unlock_key, 4);
 		} else {
-			//Now check if this unlock operation is for a woocommerce login
+			// Now check if this unlock operation is for a WooCommerce login
 			$aiowps_global_meta_tbl_name = AIOWPSEC_TBL_GLOBAL_META_DATA;
 			$sql = $wpdb->prepare("SELECT * FROM $aiowps_global_meta_tbl_name WHERE meta_key1=%s AND meta_value1=%s", 'woo_unlock_request_key', $unlock_key);
 			$woo_result = $wpdb->get_row($sql, OBJECT);
@@ -512,8 +484,8 @@ class AIOWPSecurity_User_Login {
 	 */
 	public static function send_unlock_request_email($email, $unlock_link) {
 		global $aio_wp_security;
-		$subject = '['.get_option('siteurl').'] '. __('Unlock Request Notification', 'all-in-one-wp-security-and-firewall');
-		$email_msg = sprintf(__('You have requested for the account with email address %s to be unlocked. Please click the link below to unlock your account:', 'all-in-one-wp-security-and-firewall'), $email) . "\n" . sprintf(__('Unlock link: %s', 'all-in-one-wp-security-and-firewall'), $unlock_link) . "\n\n" . __('After clicking the above link you will be able to login to the WordPress administration panel.', 'all-in-one-wp-security-and-firewall') . "\n";
+		$subject = '['.network_site_url().'] '. __('Unlock request notification', 'all-in-one-wp-security-and-firewall');
+		$email_msg = sprintf(__('You have requested for the account with email address %s to be unlocked. Please press the link below to unlock your account:', 'all-in-one-wp-security-and-firewall'), $email) . "\n" . sprintf(__('Unlock link: %s', 'all-in-one-wp-security-and-firewall'), $unlock_link) . "\n\n" . __('After pressing the above link you will be able to login to the WordPress administration panel.', 'all-in-one-wp-security-and-firewall') . "\n";
 		$site_title = get_bloginfo('name');
 		$from_name = empty($site_title) ? 'WordPress' : $site_title;
 		$email_header = 'From: '.$from_name.' <'.get_bloginfo('admin_email').'>' . "\r\n\\";
@@ -593,7 +565,7 @@ class AIOWPSecurity_User_Login {
 		if (false === $result) {
 			$aio_wp_security->debug_logger->log_debug("Error inserting record into ".$login_activity_table, 4);//Log the highly unlikely event of DB error
 		}
-
+		self::update_users_online_transient($user->ID);
 	}
 	/**
 	 * The handler for logout events, ie, uses the WP "clear_auth_cookies" action.
@@ -622,63 +594,58 @@ class AIOWPSecurity_User_Login {
 	/**
 	 * Update the 'users_online' transient
 	 *
+	 * @param string $current_user logged user id
 	 * @return void
 	 */
-	public function update_users_online_transient() {
-		if (is_user_logged_in()) {
-			$is_multi_site = is_multisite();
-			$current_user_ip = AIOWPSecurity_Utility_IP::get_user_ip_address();
-			// get the logged in users list from transients entry
-			$logged_in_users = ($is_multi_site ? get_site_transient('users_online') : get_transient('users_online'));
-			$current_user = wp_get_current_user();
-			$current_user = $current_user->ID;
-			$current_time = current_time('timestamp');
-			$current_user_info = array();
+	public static function update_users_online_transient($current_user) {
+		$is_multi_site = is_multisite();
+		$current_user_ip = AIOWPSecurity_Utility_IP::get_user_ip_address();
+		// get the logged in users list from transients entry
+		$logged_in_users = ($is_multi_site ? get_site_transient('users_online') : get_transient('users_online'));
+		$current_time = current_time('timestamp');
+		$current_user_info = array();
 
-			// Store last activity time and ip address in transient entry
-			if ($is_multi_site) {
-				$current_blog_id = get_current_blog_id();
-				// For multi-sites also store blog_id
-				$current_user_info = array("user_id" => $current_user, "last_activity" => $current_time, "ip_address" => $current_user_ip, "blog_id" => $current_blog_id);
-			} else {
-				$current_user_info = array("user_id" => $current_user, "last_activity" => $current_time, "ip_address" => $current_user_ip, "blog_id" => false);
+		// Store last activity time and ip address in transient entry
+		if ($is_multi_site) {
+			$current_blog_id = get_current_blog_id();
+			// For multi-sites also store blog_id
+			$current_user_info = array("user_id" => $current_user, "last_activity" => $current_time, "ip_address" => $current_user_ip, "blog_id" => $current_blog_id);
+		} else {
+			$current_user_info = array("user_id" => $current_user, "last_activity" => $current_time, "ip_address" => $current_user_ip, "blog_id" => false);
+		}
+
+		if (empty($logged_in_users)) {
+			// case when "users_online" transient has been deleted after expiry or is empty
+			$logged_in_users = array();
+			$logged_in_users[] = $current_user_info;
+			$is_multi_site ? set_site_transient('users_online', $logged_in_users, 30 * 60) : set_transient('users_online', $logged_in_users, 30 * 60);
+		} else {
+			$update_existing = false;
+			$item_index = 0;
+			foreach ($logged_in_users as $key => $value) {
+				$value_minus_activity = $value;
+				unset($value_minus_activity['last_activity']);
+				$current_user_minus_activity = $current_user_info;
+				unset($current_user_minus_activity['last_activity']);
+				// Check if current user we're looking at has an entry in the 'users_online' transient
+				if (empty(array_diff($current_user_minus_activity, $value_minus_activity))) {
+					if ($value['last_activity'] < ($current_time - (15 * 60))) {
+						$update_existing = true;
+						$item_index = $key;
+						break;
+					} else {
+						return; // do nothing and just return
+					}
+				}
 			}
 
-			if (empty($logged_in_users)) {
-				// case when "users_online" transient has been deleted after expiry or is empty
-				$logged_in_users = array();
-				$logged_in_users[] = $current_user_info;
-				$is_multi_site ? set_site_transient('users_online', $logged_in_users, 30 * 60) : set_transient('users_online', $logged_in_users, 30 * 60);
+			if ($update_existing) {
+				// Update transient if the last activity was over 15 min ago for this user
+				$logged_in_users[$item_index] = $current_user_info;
+				is_multisite() ? set_site_transient('users_online', $logged_in_users, 30 * 60) : set_transient('users_online', $logged_in_users, 30 * 60);
 			} else {
-				$key = 0;
-				$update_existing = false;
-				$item_index = 0;
-				foreach ($logged_in_users as $value) {
-					$value_minus_activity = $value;
-					unset($value_minus_activity['last_activity']);
-					$current_user_minus_activity = $current_user_info;
-					unset($current_user_minus_activity['last_activity']);
-					// Check if current user we're looking at has an entry in the 'users_online' transient
-					if (empty(array_diff($current_user_minus_activity, $value_minus_activity))) {
-						if ($value['last_activity'] < ($current_time - (15 * 60))) {
-							$update_existing = true;
-							$item_index = $key;
-							break;
-						} else {
-							return; // do nothing and just return
-						}
-					}
-					$key++;
-				}
-
-				if ($update_existing) {
-					// Update transient if the last activity was over 15 min ago for this user
-					$logged_in_users[$item_index] = $current_user_info;
-					is_multisite() ? set_site_transient('users_online', $logged_in_users, 30 * 60) : set_transient('users_online', $logged_in_users, 30 * 60);
-				} else {
-					$logged_in_users[] = $current_user_info;
-					is_multisite() ? set_site_transient('users_online', $logged_in_users, 30 * 60) : set_transient('users_online', $logged_in_users, 30 * 60);
-				}
+				$logged_in_users[] = $current_user_info;
+				is_multisite() ? set_site_transient('users_online', $logged_in_users, 30 * 60) : set_transient('users_online', $logged_in_users, 30 * 60);
 			}
 		}
 	}
@@ -702,13 +669,12 @@ class AIOWPSecurity_User_Login {
 		if (empty($logged_in_users)) {
 			return;
 		}
-		$j = 0;
-		foreach ($logged_in_users as $value) {
+		
+		foreach ($logged_in_users as $key => $value) {
 			if ($value['user_id'] == $user_id && strcmp($value['ip_address'], $ip_addr) == 0) {
-				unset($logged_in_users[$j]);
+				unset($logged_in_users[$key]);
 				break;
 			}
-			$j++;
 		}
 
 		// Save the transient
@@ -773,13 +739,13 @@ class AIOWPSecurity_User_Login {
 		if (isset($_POST['woocommerce-login-nonce'])) {
 			$unlock_request_form .= '<input type="hidden" name="aiowps-woo-login" id="aiowps-woo-login" value="1" />';
 		}
-		$unlock_request_form .= '<button type="submit" name="aiowps_unlock_request" id="aiowps_unlock_request" class="button">'.__('Request Unlock', 'all-in-one-wp-security-and-firewall').'</button></div></form>';
+		$unlock_request_form .= '<button type="submit" name="aiowps_unlock_request" id="aiowps_unlock_request" class="button">'.__('Request unlock', 'all-in-one-wp-security-and-firewall').'</button></div></form>';
 		return $unlock_request_form;
 	}
 
 	/**
-	 * Returns all logged in users for specific subsite of multisite installation
-	 * Checks the aiowps transient 'users_online'
+	 * Returns all logged in users for specific subsite of multisite installation.
+	 * Checks the AIOS transient 'users_online'.
 	 *
 	 * @param type $blog_id
 	 * @return array|bool
@@ -817,7 +783,7 @@ class AIOWPSecurity_User_Login {
 			return;
 		}
 		// get recent lockout records on top to notify
-		$sql = $wpdb->prepare('SELECT id, user_login, failed_login_ip, backtrace_log FROM ' .AIOWPSEC_TBL_LOGIN_LOCKDOWN. ' WHERE is_lockout_email_sent = %d ORDER BY id DESC', 0);
+		$sql = $wpdb->prepare('SELECT id, user_login, failed_login_ip, backtrace_log FROM ' .AIOWPSEC_TBL_LOGIN_LOCKOUT. ' WHERE is_lockout_email_sent = %d ORDER BY id DESC', 0);
 		$result = $wpdb->get_results($sql);
 		if (empty($result)) {
 			return;
@@ -848,8 +814,8 @@ class AIOWPSecurity_User_Login {
 		if (!empty($login_lockout_ids_send_emails)) {
 			$aio_wp_security->debug_logger->log_debug(sprintf('The IP lock notification emails of login lockout ids [%s] are sent.', implode(', ', $login_lockout_ids_send_emails)), 4);
 			// update all email to as sent.
-			$sql = $wpdb->prepare('UPDATE '.AIOWPSEC_TBL_LOGIN_LOCKDOWN.' SET is_lockout_email_sent = %d WHERE is_lockout_email_sent = %d', 1, 0);
-			//$sql = $wpdb->prepare('UPDATE '.AIOWPSEC_TBL_LOGIN_LOCKDOWN.' SET is_lockout_email_sent = %d WHERE id IN (%1s)', 1, implode(', ', $login_lockout_ids_send_emails));
+			$sql = $wpdb->prepare('UPDATE '.AIOWPSEC_TBL_LOGIN_LOCKOUT.' SET is_lockout_email_sent = %d WHERE is_lockout_email_sent = %d', 1, 0);
+			//$sql = $wpdb->prepare('UPDATE '.AIOWPSEC_TBL_LOGIN_LOCKOUT.' SET is_lockout_email_sent = %d WHERE id IN (%1s)', 1, implode(', ', $login_lockout_ids_send_emails));
 			$update_result = $wpdb->query($sql);
 			if (false === $update_result) {
 				$error_msg = empty($wpdb->last_error) ? 'Could not receive the reason for the failure' : $wpdb->last_error;

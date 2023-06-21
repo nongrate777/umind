@@ -7,8 +7,6 @@
  * @package wsal
  */
 
-use WPMailSMTP\Vendor\Psr\Log\NullLogger;
-
 // Exit if accessed directly.
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -43,7 +41,7 @@ abstract class WSAL_Connector_ConnectorFactory {
 	 *
 	 * @var boolean
 	 *
-	 * @since      4.4.2.1
+	 * @since 4.4.2.1
 	 */
 	private static $connection = false;
 
@@ -87,8 +85,7 @@ abstract class WSAL_Connector_ConnectorFactory {
 		if ( is_null( $config ) || empty( $config ) ) {
 			if ( self::$archive_mode ) {
 				// Force archive database if no config provided and archive mode is enabled.
-				$plugin            = WpSecurityAuditLog::get_instance();
-				$connection_name   = $plugin->get_global_setting( 'archive-connection' );
+				$connection_name   = WSAL\Helpers\Settings_Helper::get_option_value( 'archive-connection' );
 				$connection_config = self::load_connection_config( $connection_name );
 			} else {
 				// Default config - local or external, depending on plugin settings and licensing.
@@ -137,8 +134,7 @@ abstract class WSAL_Connector_ConnectorFactory {
 	 */
 	public static function get_config() {
 		if ( false === self::$connection ) {
-			$plugin          = WpSecurityAuditLog::get_instance();
-			$connection_name = $plugin->get_global_setting( 'adapter-connection' );
+			$connection_name = WSAL\Helpers\Settings_Helper::get_option_value( 'adapter-connection' );
 
 			if ( empty( $connection_name ) ) {
 				self::$connection = null;
@@ -172,7 +168,7 @@ abstract class WSAL_Connector_ConnectorFactory {
 	 *
 	 * @return void
 	 *
-	 * @since      4.4.2.1
+	 * @since 4.4.2.1
 	 */
 	public static function destroy_connection() {
 		self::$connection = false;
@@ -192,8 +188,7 @@ abstract class WSAL_Connector_ConnectorFactory {
 		 *
 		 * @see WSAL_Ext_Common::get_connection()
 		 */
-		$plugin         = WpSecurityAuditLog::get_instance();
-		$connection_raw = maybe_unserialize( $plugin->get_global_setting( 'connection-' . $connection_name ) );
+		$connection_raw = maybe_unserialize( WSAL\Helpers\Settings_Helper::get_option_value( 'connection-' . $connection_name ) );
 		$connection     = ( $connection_raw instanceof stdClass ) ? json_decode( json_encode( $connection_raw ), true ) : $connection_raw; // phpcs:ignore
 		if ( ! is_array( $connection ) || empty( $connection ) ) {
 			return null;

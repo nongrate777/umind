@@ -27,7 +27,7 @@ if ( ! class_exists( '\WSAL\Helpers\Classes_Helper' ) ) {
 		 *
 		 * @var array
 		 *
-		 * @since      4.4.2.1
+		 * @since 4.4.2.1
 		 */
 		private static $class_map = array();
 
@@ -36,7 +36,7 @@ if ( ! class_exists( '\WSAL\Helpers\Classes_Helper' ) ) {
 		 *
 		 * @return array
 		 *
-		 * @since      4.4.2.1
+		 * @since 4.4.2.1
 		 */
 		public static function get_class_map(): array {
 			if ( empty( self::$class_map ) ) {
@@ -47,13 +47,30 @@ if ( ! class_exists( '\WSAL\Helpers\Classes_Helper' ) ) {
 		}
 
 		/**
+		 * Adds a class (or classes) to the class map.
+		 *
+		 * @param array $class_add - Array with class or classes to add.
+		 *
+		 * @return void
+		 *
+		 * @since 4.5.0
+		 */
+		public static function add_to_class_map( array $class_add ) {
+			if ( empty( self::$class_map ) ) {
+				self::$class_map = require WSAL_BASE_DIR . 'vendor/composer/autoload_classmap.php';
+			}
+
+			self::$class_map = \array_merge( self::$class_map, $class_add );
+		}
+
+		/**
 		 * Returns the class by its filename. Checks if it exists and returns it as string. Returns false otherwise
 		 *
 		 * @param string $file - The filename of the class to check.
 		 *
 		 * @return string|false
 		 *
-		 * @since      4.4.2.1
+		 * @since 4.4.2.1
 		 */
 		public static function get_class_by_filename( string $file ) {
 			if ( in_array( $file, self::get_class_map(), true ) ) {
@@ -76,7 +93,7 @@ if ( ! class_exists( '\WSAL\Helpers\Classes_Helper' ) ) {
 		 *
 		 * @return array
 		 *
-		 * @since      4.4.2.1
+		 * @since 4.4.2.1
 		 */
 		public static function get_subclasses_of_class( string $current_class, string $base_class, bool $exclude_abstracts = true ): array {
 
@@ -100,7 +117,7 @@ if ( ! class_exists( '\WSAL\Helpers\Classes_Helper' ) ) {
 		 *
 		 * @return array
 		 *
-		 * @since      4.4.2.1
+		 * @since 4.4.2.1
 		 */
 		public static function get_classes_by_namespace( string $namespace ) {
 			if ( 0 === strpos( $namespace, '\\' ) ) {
@@ -148,7 +165,7 @@ if ( ! class_exists( '\WSAL\Helpers\Classes_Helper' ) ) {
 		 *
 		 * @return array
 		 *
-		 * @since      4.4.2.1
+		 * @since 4.4.2.1
 		 */
 		public static function get_classes_with_term( $term ) {
 			$term_upper = strtoupper( $term );

@@ -13,7 +13,10 @@ namespace WSAL\Utils;
 
 defined( 'ABSPATH' ) || exit; // Exit if accessed directly.
 
+use WSAL_Settings;
+use WSAL_Ext_MirrorLogger;
 use \WSAL\Helpers\WP_Helper;
+use WSAL\Helpers\Settings_Helper;
 
 /**
  * Migration class
@@ -35,7 +38,7 @@ if ( ! class_exists( '\WSAL\Utils\Migration' ) ) {
 		 *
 		 * @var string
 		 *
-		 * @since      4.4.2.1
+		 * @since 4.4.2.1
 		 */
 		protected static $version_option_name = WSAL_PREFIX . 'plugin_version';
 
@@ -46,7 +49,7 @@ if ( ! class_exists( '\WSAL\Utils\Migration' ) ) {
 		 *
 		 * @var string
 		 *
-		 * @since      4.4.2.1
+		 * @since 4.4.2.1
 		 */
 		protected static $const_name_of_plugin_version = 'WSAL_VERSION';
 
@@ -55,7 +58,7 @@ if ( ! class_exists( '\WSAL\Utils\Migration' ) ) {
 		 *
 		 * @var boolean
 		 *
-		 * @since      4.4.2.1
+		 * @since 4.4.2.1
 		 */
 		protected static $_442_started = false;
 
@@ -80,18 +83,7 @@ if ( ! class_exists( '\WSAL\Utils\Migration' ) ) {
 
 			$wsal = \WpSecurityAuditLog::get_instance();
 			$wsal::load_freemius();
-			$wsal->load_defaults();
-
-			// Load dependencies.
-			if ( ! isset( $wsal->alerts ) ) {
-				$wsal->alerts = new \WSAL_AlertManager( $wsal );
-			}
-
-			if ( ! isset( $wsal->constants ) ) {
-				$wsal->constants = new \WSAL_ConstantManager();
-			}
-
-			$wsal->sensors = new \WSAL_SensorManager( $wsal );
+			$wsal::load_defaults();
 
 			$disabled_alerts = WP_Helper::get_global_option( 'disabled-alerts', false );
 
@@ -120,7 +112,7 @@ if ( ! class_exists( '\WSAL\Utils\Migration' ) ) {
 			 *
 			 * @since 3.2.3.3
 			 */
-			if ( ! $wsal->get_global_boolean_setting( 'mwp-child-stealth-mode', false ) ) {
+			if ( ! Settings_Helper::get_boolean_option_value( 'mwp-child-stealth-mode', false ) ) {
 				$wsal->settings()->set_mainwp_child_stealth_mode();
 			}
 
@@ -136,10 +128,10 @@ if ( ! class_exists( '\WSAL\Utils\Migration' ) ) {
 			}
 
 			// Remove 'system' entry from the front-end events array as it was removed along with 404 tracking.
-			$frontend_events = \WSAL_Settings::get_frontend_events();
+			$frontend_events = Settings_Helper::get_frontend_events();
 			if ( array_key_exists( 'system', $frontend_events ) ) {
 				unset( $frontend_events['system'] );
-				\WSAL_Settings::set_frontend_events( $frontend_events );
+				Settings_Helper::set_frontend_events( $frontend_events );
 			}
 
 			// Remove all settings related to 404 tracking.
@@ -165,6 +157,7 @@ if ( ! class_exists( '\WSAL\Utils\Migration' ) ) {
 			// Delete dev options from the settings.
 			WP_Helper::delete_global_option( 'dev-options' );
 
+
 			if ( class_exists( '\WSAL_Extension_Manager' ) ) {
 				\WSAL_Extension_Manager::include_extension( 'external-db' );
 
@@ -173,7 +166,7 @@ if ( ! class_exists( '\WSAL\Utils\Migration' ) ) {
 				// This was previously a constant in WSAL_Ext_Plugin, but we removed it in version 4.3.
 				$scheduled_hook_mirroring = 'wsal_run_mirroring';
 
-				$mirrors = \WSAL_Ext_Common::get_config_options_for_group( 'mirror-' );
+				$mirrors = Settings_Helper::get_all_mirrors();
 				if ( ! empty( $mirrors ) ) {
 					foreach ( $mirrors as $mirror ) {
 						// Check if mirror details are valid.
@@ -234,16 +227,16 @@ if ( ! class_exists( '\WSAL\Utils\Migration' ) ) {
 
 			// If AWS SDK is not available and an AWS CLoudWatch connection is present, let's create
 			// a notice to nudge the user.
-			if ( ! class_exists( '\Aws\CloudWatchLogs\CloudWatchLogsClient' ) && ( ! defined( 'WSAL_LOAD_AWS_SDK' ) || ! WSAL_LOAD_AWS_SDK ) ) {
+			if ( ! class_exists( '\Aws\CloudWatchLogs\CloudWatchLogsClient' ) && ( ! defined( 'WSAL_LOAD_AWS_SDK' ) || ! \WSAL_LOAD_AWS_SDK ) ) {
 
-				if ( class_exists( '\WSAL_Ext_Mirrors_AWSCloudWatchConnection' ) ) {
+				if ( class_exists( '\WSAL\Extensions\ExternalDB\Mirrors\WSAL_Ext_Mirrors_AWSCloudWatchConnection' ) ) {
 
 					if ( ! is_null( $wsal->external_db_util ) ) {
-						$connections = $wsal->external_db_util->get_all_connections();
+						$connections = Settings_Helper::get_all_connections();
 						if ( ! empty( $connections ) ) {
 							foreach ( $connections as $connection ) {
-								if ( \WSAL_Ext_Mirrors_AWSCloudWatchConnection::get_type() === $connection['type'] ) {
-									$wsal->set_global_boolean_setting( 'show-aws-sdk-config-nudge-4_3_2', true );
+								if ( \WSAL\Extensions\ExternalDB\Mirrors\WSAL_Ext_Mirrors_AWSCloudWatchConnection::get_type() === $connection['type'] ) {
+									Settings_Helper::set_boolean_option_value( 'show-aws-sdk-config-nudge-4_3_2', true );
 									break;
 								}
 							}
@@ -388,9 +381,11 @@ if ( ! class_exists( '\WSAL\Utils\Migration' ) ) {
 								WP_Helper::delete_global_option( 'archiving-last-created' );
 							}
 
-							// Function WSAL_Ext_Common::delete_connection is not used on purpose because it would try to
-							// trigger an event which would result in error while doing this clean-up.
-							WP_Helper::delete_global_option( WSAL_CONN_PREFIX . $connection_name );
+							if ( defined( 'WSAL_CONN_PREFIX' ) ) {
+								// Function WSAL_Ext_Common::delete_connection is not used on purpose because it would try to
+								// trigger an event which would result in error while doing this clean-up.
+								WP_Helper::delete_global_option( WSAL_CONN_PREFIX . $connection_name );
+							}
 						}
 					}
 				}
@@ -402,7 +397,7 @@ if ( ! class_exists( '\WSAL\Utils\Migration' ) ) {
 					// Check if SMS notifications or any external mirrors are setup + force plugin to show a notice.
 					$mirrors_in_use = false;
 					if ( ! is_null( $wsal->external_db_util ) ) {
-						$mirrors        = $wsal->external_db_util->get_all_mirrors();
+						$mirrors        = Settings_Helper::get_all_mirrors();
 						$mirrors_in_use = ! empty( $mirrors );
 					}
 
@@ -421,7 +416,7 @@ if ( ! class_exists( '\WSAL\Utils\Migration' ) ) {
 					}
 
 					if ( $notifications_in_use || $mirrors_in_use ) {
-						$wsal->set_global_boolean_setting( 'show-helper-plugin-needed-nudge', true, false );
+						Settings_Helper::set_boolean_option_value( 'show-helper-plugin-needed-nudge', true, false );
 					}
 				}
 			}
@@ -489,14 +484,14 @@ if ( ! class_exists( '\WSAL\Utils\Migration' ) ) {
 				$connection_config = \WSAL_Connector_ConnectorFactory::load_connection_config( $connection );
 
 				\WSAL\Entities\Occurrences_Entity::set_connection(
-                    ( new \WSAL_Connector_MySQLDB( $connection_config ) )->get_connection()
-                );
+					( new \WSAL_Connector_MySQLDB( $connection_config ) )->get_connection()
+				);
 
 				// If one of the new columns exists there is no need to alter the table.
 				$column_exists = \WSAL\Entities\Occurrences_Entity::check_column(
-                    \WSAL\Entities\Occurrences_Entity::get_table_name(),
-                    'client_ip',
-                    'varchar( 255 )'
+					\WSAL\Entities\Occurrences_Entity::get_table_name(),
+					'client_ip',
+					'varchar( 255 )'
 				);
 				if ( ! $column_exists ) {
 					$upgrade_sql = \WSAL\Entities\Occurrences_Entity::get_upgrade_query();
@@ -565,6 +560,67 @@ if ( ! class_exists( '\WSAL\Utils\Migration' ) ) {
 						\WSAL\Adapter\User_Sessions::create_table();
 					}
 				}
+			}
+		}
+
+		/**
+		 * Migration for version upto 4.4.3
+		 *
+		 * Note: The migration methods need to be in line with the @see WSAL\Utils\Abstract_Migration::$pad_length
+		 *
+		 * @return void
+		 */
+		protected static function migrate_up_to_4430() {
+
+
+			if ( class_exists( 'WSAL_Ext_MirrorLogger' ) && method_exists( '\WSAL\Helpers\Settings_Helper', 'get_working_dir_path_static' ) ) {
+
+				$working_dir_path = Settings_Helper::get_working_dir_path_static();
+
+				if ( file_exists( $working_dir_path . WSAL_Ext_MirrorLogger::FILE_NAME_FAILED_LOGS . '.json' ) ) {
+					rename( $working_dir_path . WSAL_Ext_MirrorLogger::FILE_NAME_FAILED_LOGS . '.json', $working_dir_path . WSAL_Ext_MirrorLogger::FILE_NAME_FAILED_LOGS . '.php' );
+					$line = fgets(
+						fopen( $working_dir_path . WSAL_Ext_MirrorLogger::FILE_NAME_FAILED_LOGS . '.php', 'r' )
+					);
+					if ( false === strpos( $line, '<?php' ) ) {
+						$file_data = file_get_contents( $working_dir_path . WSAL_Ext_MirrorLogger::FILE_NAME_FAILED_LOGS . '.php' );
+						file_put_contents( $working_dir_path . WSAL_Ext_MirrorLogger::FILE_NAME_FAILED_LOGS . '.php', '<?php' . PHP_EOL . $file_data );
+					}
+				}
+			}
+		}
+
+		/**
+		 * Migration for version upto 4.5.0
+		 *
+		 * Note: The migration methods need to be in line with the @see WSAL\Utils\Abstract_Migration::$pad_length
+		 *
+		 * @return void
+		 */
+		protected static function migrate_up_to_4450() {
+			\WSAL\Entities\Metadata_Entity::create_indexes();
+			\WSAL\Entities\Occurrences_Entity::create_indexes();
+		}
+
+		/**
+		 * Migration for version upto 4.5.2
+		 *
+		 * Converts excluded users to array
+		 *
+		 * Note: The migration methods need to be in line with the @see WSAL\Utils\Abstract_Migration::$pad_length
+		 *
+		 * @return void
+		 */
+		protected static function migrate_up_to_4520() {
+			$excluded_users = Settings_Helper::get_option_value( 'excluded-users', array() );
+			if ( is_string( $excluded_users ) ) {
+				$excluded_users = array_unique( array_filter( explode( ',', $excluded_users ) ) );
+				Settings_Helper::set_option_value( 'excluded-users', $excluded_users );
+			}
+			$excluded_roles = Settings_Helper::get_option_value( 'excluded-roles', array() );
+			if ( is_string( $excluded_roles ) ) {
+				$excluded_roles = array_unique( array_filter( explode( ',', $excluded_roles ) ) );
+				Settings_Helper::set_option_value( 'excluded-roles', $excluded_roles );
 			}
 		}
 	}

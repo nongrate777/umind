@@ -41,7 +41,36 @@ class Config {
 	 * @return string
 	 */
 	private function get_file_content_prefix() {
-		return "<?php __halt_compiler();\n";
+		$prefix  = "<?php __halt_compiler();\n";
+		$prefix .= "/**\n";
+		$prefix .= " * This file was created by All In One Security (AIOS) plugin.\n";
+		$prefix .= " * The file is required for storing and retrieving your firewall's settings.\n";
+		$prefix .= " */\n";
+		return $prefix;
+	}
+
+	/**
+	 * Update the config file with the new prefix whenever the prefix changes.
+	 *
+	 * @return void
+	 */
+	public function update_prefix() {
+
+		$valid_prefix   = $this->get_file_content_prefix();
+		$current_prefix = file_get_contents($this->path, false, null, 0, strlen($valid_prefix));
+
+		if ($current_prefix === $valid_prefix) return; // prefix is valid
+
+		$contents = file_get_contents($this->path);
+
+		$matches = array();
+		if (preg_match('/\{.*\}/', $contents, $matches)) {
+			//update settings
+			file_put_contents($this->path, $valid_prefix . $matches[0]);
+		} else {
+			//reset settings
+			file_put_contents($this->path, $valid_prefix . json_encode(array()));
+		}
 	}
 
 	/**
@@ -93,7 +122,7 @@ class Config {
 	 *
 	 * @return string
 	 */
-	private function get_contents() {
+	public function get_contents() {
 		// __COMPILER_HALT_OFFSET__ doesn't define in a few PHP versions. It's a PHP bug.
 		// https://bugs.php.net/bug.php?id=70164
 		$contents = @file_get_contents($this->path, false, null, strlen($this->get_file_content_prefix())); // phpcs:ignore Generic.PHP.NoSilencedErrors.Discouraged -- ignore this
@@ -105,8 +134,24 @@ class Config {
 		if (empty($contents)) {
 			return array();
 		}
-		
+
 		return json_decode($contents, true);
+	}
+
+	/**
+	 * Sets entire firewall config from array.
+	 *
+	 * @param Array $contents
+	 *
+	 * @return Boolean
+	 */
+	public function set_contents($contents) {
+
+		if (null === $contents) {
+			return false;
+		}
+
+		return (false !== @file_put_contents($this->path, $this->get_file_content_prefix() . json_encode($contents), LOCK_EX)); // phpcs:ignore Generic.PHP.NoSilencedErrors.Discouraged -- ignore this
 	}
 
 	/**

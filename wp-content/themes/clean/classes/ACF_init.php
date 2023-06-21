@@ -48,7 +48,11 @@ class ACF_init
     {
         $blocks = array(
             'banner' => 'Banner Block',
-            'accordion' => 'Accordion Block'
+            'accordion' => 'Accordion Block',
+            'freelancer' => 'Freelancers Block',
+            'cv' => 'CV Block',
+            'technologies' => 'Technologies Block',
+            'black' => 'Black Block'
         );
 
         foreach ($blocks as $id => $name) {

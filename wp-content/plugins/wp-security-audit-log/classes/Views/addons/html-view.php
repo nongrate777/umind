@@ -121,8 +121,8 @@ $trial_link = add_query_arg(
 				</div>
 			<?php endforeach; ?>
 			<div class="user-login-cta">
-				<a href="<?php echo esc_url( $buy_now ); ?>" class="user-gradient-cta"<?php echo esc_attr( $buy_now_target ); ?>><?php esc_html_e( 'Upgrade to Premium', 'wp-security-audit-log' ); ?></a>
-				<a href="<?php echo esc_url( $trial_link ); ?>" class="user-bordered-cta"<?php echo esc_attr( $buy_now_target ); ?>><?php esc_html_e( 'Start Free 14-Day Premium Trial', 'wp-security-audit-log' ); ?></a>
+				<a href="<?php echo esc_url( $trial_link ); ?>" class="user-gradient-cta"<?php echo esc_attr( $buy_now_target ); ?>><?php esc_html_e( 'Get the Free 14-day Premium trial', 'wp-security-audit-log' ); ?></a>
+				<a href="<?php echo esc_url( $buy_now ); ?>" class="user-bordered-cta"<?php echo esc_attr( $buy_now_target ); ?>><?php esc_html_e( 'Upgrade to Premium', 'wp-security-audit-log' ); ?></a>
 			</div>
 		</div>
 	</div>

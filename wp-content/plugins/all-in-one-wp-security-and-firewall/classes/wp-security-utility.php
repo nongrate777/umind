@@ -20,17 +20,6 @@ class AIOWPSecurity_Utility {
 	}
 
 	/**
-	 * Check whether the current logged in user has the capability to manage the AIOWPS plugin
-	 *
-	 * @return Boolean True if the logged in user has capability to manage the AIOWPS plugin, otherwise false
-	 */
-	public static function has_manage_cap() {
-		// This filter will useful when the administrator would like to give permission to access AIOWPS to Security Analyst.
-		$cap = apply_filters('aiowps_management_capability', AIOWPSEC_MANAGEMENT_PERMISSION);
-		return current_user_can($cap);
-	}
-
-	/**
 	 * Explode $string with $delimiter, trim all lines and filter out empty ones.
 	 *
 	 * @param string $string
@@ -40,6 +29,17 @@ class AIOWPSecurity_Utility {
 	public static function explode_trim_filter_empty($string, $delimiter = PHP_EOL) {
 		return array_filter(array_map('trim', explode($delimiter, $string)), 'strlen');
 	}
+	
+	/**
+	 * Split $string with newline, trim all lines and filter out empty ones.
+	 * This method to be used on historical settings where the separator may have depended on PHP_EOL
+	 *
+	 * @param string $string
+	 * @return array
+	 */
+	public static function splitby_newline_trim_filter_empty($string) {
+		return array_filter(array_map('trim', preg_split('/\R/', $string)), 'strlen'); //\R line break: matches \n, \r and \r\n
+	}
 
 	/**
 	 * Returns the current URL
@@ -47,6 +47,8 @@ class AIOWPSecurity_Utility {
 	 * @return string
 	 */
 	public static function get_current_page_url() {
+		if (defined('WP_CLI') && WP_CLI) return '';
+
 		$pageURL = 'http';
 		if (isset($_SERVER["HTTPS"]) && "on" == $_SERVER["HTTPS"]) {
 			$pageURL .= "s";
@@ -431,7 +433,7 @@ class AIOWPSecurity_Utility {
 	 **/
 	public static function check_locked_ip($ip) {
 		global $wpdb;
-		$login_lockdown_table = AIOWPSEC_TBL_LOGIN_LOCKDOWN;
+		$login_lockdown_table = AIOWPSEC_TBL_LOGIN_LOCKOUT;
 		$now = current_time('mysql', true);
 		$locked_ip = $wpdb->get_row($wpdb->prepare("SELECT * FROM $login_lockdown_table WHERE release_date > %s AND failed_login_ip = %s", $now, $ip), ARRAY_A);
 		if (null != $locked_ip) {
@@ -449,7 +451,7 @@ class AIOWPSecurity_Utility {
 	 */
 	public static function get_locked_ips() {
 		global $wpdb;
-		$login_lockdown_table = AIOWPSEC_TBL_LOGIN_LOCKDOWN;
+		$login_lockdown_table = AIOWPSEC_TBL_LOGIN_LOCKOUT;
 		$now = current_time('mysql', true);
 	$locked_ips = $wpdb->get_results($wpdb->prepare("SELECT * FROM $login_lockdown_table WHERE release_date > %s", $now), ARRAY_A);
 		
@@ -462,7 +464,7 @@ class AIOWPSecurity_Utility {
 
 
 	/**
-	 * Locks an IP address - Adds an entry to the AIOWPSEC_TBL_LOGIN_LOCKDOWN table.
+	 * Locks an IP address - Adds an entry to the AIOWPSEC_TBL_LOGIN_LOCKOUT table.
 	 *
 	 * @global wpdb            $wpdb
 	 * @global AIO_WP_Security $aio_wp_security
@@ -475,7 +477,7 @@ class AIOWPSecurity_Utility {
 	 */
 	public static function lock_IP($ip, $lock_reason, $username = '') {
 		global $wpdb, $aio_wp_security;
-		$login_lockdown_table = AIOWPSEC_TBL_LOGIN_LOCKDOWN;
+		$login_lockdown_table = AIOWPSEC_TBL_LOGIN_LOCKOUT;
 
 		if ('404' == $lock_reason) {
 			$lock_minutes = $aio_wp_security->configs->get_value('aiowps_404_lockout_time_length');
@@ -590,11 +592,47 @@ class AIOWPSecurity_Utility {
 		}
 		return (false === $result) ? false : true;
 	}
+
+	/**
+	 * Add backquotes to tables and db-names in SQL queries. Taken from phpMyAdmin.
+	 *
+	 * @param  string $a_name - the table name
+	 * @return string - the quoted table name
+	 */
+	public static function backquote($a_name) {
+		if (!empty($a_name) && '*' != $a_name) {
+			if (is_array($a_name)) {
+				$result = array();
+				foreach ($a_name as $key => $val) {
+					$result[$key] = '`'.$val.'`';
+				}
+				return $result;
+			} else {
+				return '`'.$a_name.'`';
+			}
+		} else {
+			return $a_name;
+		}
+	}
 	
 	/**
-	 * Delete expired captcha info option
+	 * Replace the first, and only the first, instance within a string
 	 *
-	 * Note: A unique instance these option is created everytime the login page is loaded with captcha enabled
+	 * @param String $needle   - the search term
+	 * @param String $replace  - the replacement term
+	 * @param String $haystack - the string to replace within
+	 *
+	 * @return String - the filtered string
+	 */
+	public static function str_replace_once($needle, $replace, $haystack) {
+		$pos = strpos($haystack, $needle);
+		return (false !== $pos) ? substr_replace($haystack, $replace, $pos, strlen($needle)) : $haystack;
+	}
+
+	/**
+	 * Delete expired CAPTCHA info option
+	 *
+	 * Note: A unique instance these option is created everytime the login page is loaded with CAPTCHA enabled
 	 * This function will help prune the options table of old expired entries.
 	 *
 	 * @global wpdb $wpdb
@@ -629,23 +667,27 @@ class AIOWPSecurity_Utility {
 	 */
 	public static function get_server_type() {
 		if (!isset($_SERVER['SERVER_SOFTWARE'])) {
-			return -1;
+			return apply_filters('aios_server_type', -1);
 		}
 
 		// Figure out what server they're using.
 		$server_software = strtolower(sanitize_text_field(wp_unslash(($_SERVER['SERVER_SOFTWARE']))));
 
 		if (strstr($server_software, 'apache')) {
-			return 'apache';
+			$server_type = 'apache';
 		} elseif (strstr($server_software, 'nginx')) {
-			return 'nginx';
+			$server_type = 'nginx';
 		} elseif (strstr($server_software, 'litespeed')) {
-			return 'litespeed';
+			$server_type = 'litespeed';
 		} elseif (strstr($server_software, 'iis')) {
-			return 'iis';
+			$server_type = 'iis';
+		} elseif (strstr($server_software, 'lighttpd')) {
+			$server_type = 'lighttpd';
 		} else { // Unsupported server
-			return -1;
+			$server_type = -1;
 		}
+
+		return apply_filters('aios_server_type', $server_type);
 	}
 
 	/**
@@ -760,6 +802,24 @@ class AIOWPSecurity_Utility {
 	}
 
 	/**
+	 * Normalise call stacks by clearing out unnecessary objects from their arguments list, leaving only the first arguments as a string. The call stacks should be one that is generated by debug_backtrace() function.
+	 *
+	 * @param array $backtrace The output of the debug_backtrace() function
+	 * @return array An array of associative arrays after being normalised
+	 */
+	public static function normalise_call_stack_args($backtrace) {
+		foreach ($backtrace as $index => $element) {
+			if (!isset($element['args']) || !is_array($element['args']) || !isset($element['args'][0])) $backtrace[$index]['args'] = array('');
+			if (is_object($backtrace[$index]['args'][0])) {
+				$backtrace[$index]['args'] = array(get_class($backtrace[$index]['args'][0]));
+			} elseif (!is_string($backtrace[$index]['args'][0])) {
+				$backtrace[$index]['args'] = array('');
+			}
+		}
+		return $backtrace;
+	}
+
+	/**
 	 * Check whether the WooCommerce plugin is active.
 	 *
 	 * @return Boolean True if the WooCommerce plugin is active, otherwise false.
@@ -774,11 +834,14 @@ class AIOWPSecurity_Utility {
 	 * @return boolean True if the incompatible TFA premium plugin version active, otherwise false.
 	 */
 	public static function is_incompatible_tfa_premium_version_active() {
-		if (!function_exists('get_plugins')) {
-			require_once(ABSPATH.'/wp-admin/includes/plugin.php');
+		if (!function_exists('get_plugin_data')) {
+			require_once(ABSPATH . '/wp-admin/includes/plugin.php');
 		}
-		foreach (get_plugins() as $plugin_slug => $plugin_info) {
-			if (is_plugin_active($plugin_slug) && strpos($plugin_slug, '/') && is_dir(WP_PLUGIN_DIR.'/'.explode('/', $plugin_slug)[0].'/simba-tfa/premium') && version_compare($plugin_info['Version'], AIOS_TFA_PREMIUM_LATEST_INCOMPATIBLE_VERSION, '<=')) {
+
+		$active_plugins = wp_get_active_and_valid_plugins();
+
+		foreach ($active_plugins as $plugin_file) {
+			if ('two-factor-login.php' == basename($plugin_file) && is_dir(dirname($plugin_file) . '/simba-tfa/premium') && version_compare(get_plugin_data($plugin_file)['Version'], AIOS_TFA_PREMIUM_LATEST_INCOMPATIBLE_VERSION, '<=')) {
 				return true;
 			}
 		}
@@ -834,5 +897,41 @@ class AIOWPSecurity_Utility {
 	 */
 	public static function is_apache_server() {
 		return (false !== strpos(self::get_server_software(), 'Apache'));
+	}
+
+	/**
+	 * Change salt postfixes.
+	 *
+	 * @return boolen True if the salt postfixes are changed otherwise false.
+	 */
+	public static function change_salt_postfixes() {
+		global $aio_wp_security;
+
+		$salt_postfixes = array(
+			'auth' => wp_generate_password(64, true, true),
+			'secure_auth' => wp_generate_password(64, true, true),
+			'logged_in' => wp_generate_password(64, true, true),
+			'nonce' => wp_generate_password(64, true, true),
+		);
+
+		return $aio_wp_security->configs->set_value('aiowps_salt_postfixes', $salt_postfixes, true);
+	}
+
+	/**
+	 * This function checks to see if there is a display condition for the item and if so runs it otherwise it returns true to display the item
+	 *
+	 * @param array $item_info - the item information array
+	 *
+	 * @return boolean - true if the item should be displayed or false to hide it
+	 */
+	public static function should_display_item($item_info) {
+		if (!empty($item_info['display_condition_callback']) && is_callable($item_info['display_condition_callback'])) {
+			return call_user_func($item_info['display_condition_callback']);
+		} elseif (!empty($item_info['display_condition_callback']) && !is_callable($item_info['display_condition_callback'])) {
+			$item = isset($item_info['page_title']) ? $item_info['page_title'] : '';
+			error_log("Callback function set but not callable (coding error). Item: " . $item);
+			return false;
+		}
+		return true;
 	}
 }

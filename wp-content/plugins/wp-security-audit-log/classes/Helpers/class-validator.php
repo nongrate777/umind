@@ -30,7 +30,7 @@ if ( ! class_exists( '\WSAL\Helpers\Validator' ) ) {
 		 *
 		 * @return boolean - true - tag is valid, false - tag is not valid.
 		 *
-		 * @since      4.4.2.1
+		 * @since 4.4.2.1
 		 */
 		public static function validate_mirror_tag( string $string ): bool {
 
@@ -59,7 +59,7 @@ if ( ! class_exists( '\WSAL\Helpers\Validator' ) ) {
 		 *
 		 * @return boolean
 		 *
-		 * @since      4.4.2.1
+		 * @since 4.4.2.1
 		 */
 		private static function starts_alpha_numeric( string $string ): bool {
 			if ( preg_match( '/^[a-zA-Z0-9]/', $string ) ) {
@@ -77,7 +77,7 @@ if ( ! class_exists( '\WSAL\Helpers\Validator' ) ) {
 		 *
 		 * @return boolean
 		 *
-		 * @since      4.4.2.1
+		 * @since 4.4.2.1
 		 */
 		private static function is_string_less_or_equal( string $string, int $size ): bool {
 			if ( strlen( $string ) <= $size ) {
@@ -94,13 +94,44 @@ if ( ! class_exists( '\WSAL\Helpers\Validator' ) ) {
 		 *
 		 * @return boolean
 		 *
-		 * @since      4.4.2.1
+		 * @since 4.4.2.1
 		 */
 		private static function is_string_contains_only( string $string ): bool {
 			if ( preg_match( '/[a-z\d_-]*/i', $string ) ) {
 				return true;
 			}
 			return false;
+		}
+
+		/**
+		 * Validate IP address.
+		 *
+		 * @param string $ip - IP address.
+		 *
+		 * @return string|bool
+		 */
+		public static function validate_ip( $ip ) {
+			$opts = FILTER_FLAG_IPV4 | FILTER_FLAG_IPV6;
+
+			if ( \WSAL\Helpers\Settings_Helper::get_boolean_option_value( 'filter-internal-ip', false ) ) {
+				$opts = $opts | FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE;
+			}
+
+			$filtered_ip = filter_var( $ip, FILTER_VALIDATE_IP, $opts );
+
+			if ( ! $filtered_ip || empty( $filtered_ip ) ) {
+				// Regex IPV4.
+				if ( preg_match( '/^(([1-9]?[0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]).){3}([1-9]?[0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$/', $ip ) ) {
+					return $ip;
+				} elseif ( preg_match( '/^\s*((([0-9A-Fa-f]{1,4}:){7}([0-9A-Fa-f]{1,4}|:))|(([0-9A-Fa-f]{1,4}:){6}(:[0-9A-Fa-f]{1,4}|((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3})|:))|(([0-9A-Fa-f]{1,4}:){5}(((:[0-9A-Fa-f]{1,4}){1,2})|:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3})|:))|(([0-9A-Fa-f]{1,4}:){4}(((:[0-9A-Fa-f]{1,4}){1,3})|((:[0-9A-Fa-f]{1,4})?:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){3}(((:[0-9A-Fa-f]{1,4}){1,4})|((:[0-9A-Fa-f]{1,4}){0,2}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){2}(((:[0-9A-Fa-f]{1,4}){1,5})|((:[0-9A-Fa-f]{1,4}){0,3}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){1}(((:[0-9A-Fa-f]{1,4}){1,6})|((:[0-9A-Fa-f]{1,4}){0,4}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(:(((:[0-9A-Fa-f]{1,4}){1,7})|((:[0-9A-Fa-f]{1,4}){0,5}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:)))(%.+)?\s*$/', $ip ) ) {
+					// Regex IPV6.
+					return $ip;
+				}
+
+				return false;
+			} else {
+				return $filtered_ip;
+			}
 		}
 	}
 }

@@ -3,11 +3,11 @@ Contributors: WPWhiteSecurity, robert681
 Plugin URI: https://wpactivitylog.com
 License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl.html
-Tags: activity log, wordpress activity logs, security audit log, audit log, user tracking, security event log, audit trail, wordpress security monitor, wordpress admin, wordpress admin monitoring, user activity, admin, multisite, SMS alerts, wordpress monitoring, email notification, wordpress email alerts, tracking, user tracking, user activity report, wordpress audit trail
+Tags: activity log, security audit log, user tracking, security event log, audit trail, user activity, changelog, history, log, website changes
 Requires at least: 5.0
-Tested up to: 6.0.1
-Stable tag: 4.4.2.1
-Requires PHP: 7.0
+Tested up to: 6.2
+Stable tag: 4.5.2
+Requires PHP: 7.2
 
 The #1 user-rated activity log plugin. Keep a comprehensive log of the changes that happen on your site with this easy to use plugin.
 
@@ -152,6 +152,7 @@ WP Activity Log can keep also a detailed log of changes that happen on other plu
 * <strong>[WP Activity Log for Yoast SEO](https://wpactivitylog.com/extensions/yoast-seo-activity-log/?utm_source=wordpress.org&utm_medium=referral&utm_campaign=WSAL&utm_content=plugin+repos+description)</strong>: Install this extension to keep a log of the Yoast SEO plugin settings changes, and also of the on-page SEO changes you and your team make in the Yoast SEO meta box.
 * <strong>[WP Activity Log for WPForms](https://wpactivitylog.com/extensions/wpforms-activity-log/?utm_source=wordpress.org&utm_medium=referral&utm_campaign=WSAL&utm_content=plugin+repos+description)</strong>: Install this extension to keep a log of the changes your team does in the WPForms plugin settings, forms, form files, entries (leads) and more.
 * <strong>[WP Activity Log for Gravity Forms](https://wpactivitylog.com/extensions/gravity-forms-activity-log/?utm_source=wordpress.org&utm_medium=referral&utm_campaign=WSAL&utm_content=plugin+repos+description)</strong>: Install this extension to keep a log of the changes your team does in the Gravity Forms plugin settings, forms, forms settings, entries (leads) and more.
+* <strong>[WP Activity Log for MemberPress](https://wpactivitylog.com/extensions/memberpress-activity-log/?utm_source=wordpress.org&utm_medium=referral&utm_campaign=WSAL&utm_content=plugin+repos+description)</strong>: Install this extension to keep a log of the changes in your MemberPress powered website, including plugin settings changes, memberships, payments, subscriptions and other changes that your team does on your website.
 * <strong>[WP Activity Log for bbPress](https://wordpress.org/plugins/wp-security-audit-log-add-on-for-bbpress/)</strong>: Intall this extension to keep a log of changes in bbPress forums, topics, bbPress settings and more.
 * <strong>[Activity Log for MainWP](https://wpactivitylog.com/extensions/mainwp-activity-log/?utm_source=wordpress.org&utm_medium=referral&utm_campaign=WSAL&utm_content=plugin+repos+description)</strong>: Install this MainWP extension to keep a log of the MainWP network changes and can see the activity logs of all child sites from one central location - the MainWP dashboard.
 
@@ -208,70 +209,26 @@ Please refer to our [support pages](https://wpactivitylog.com/support/?utm_sourc
 
 == Changelog ==
 
-= 4.4.2.1 (2022-07-06) =
-
-* **Bug fixes**
-	* Fixed: Fatal error when a WooCommerce file download is triggered.
-	* Fixed: Only users with administrator role shown as logged in on a multisite network.
-	* Fixed: Event IDs 5010 - 5018 wrongly enabled by default.
-	* Fixed: A number of upgrade errors caused because of possibly outdated files.
-	* Fixed: Disabled event IDs disabled at multisite network level were activated back when accessing child sites.
-	* Fixed: Upgrade notice shown on a multisite network even when it is a new install.
-	* Fixed: Fatal error triggered due to incorrectly named files (wrong capilitazion).
-	* Fixed: Error in Alert formatter triggered during the upgrade process.
-
-= 4.4.2 (2022-06-23) =
-
-Release notes: [More reports white labelling options & statistics reports](https://wpactivitylog.com/wsal-4-4-2/)
-
-* **New activity log event IDs**
-	* ID 2133: user taken over a post from another user.
-	
-* **New features & functionality**
-	* A number of new [activity log statistics reports](https://wpactivitylog.com/features/reports-wordpress-activity-log/) such as number of newly created users, user profile changes, password changes and password resets, page views, and more.
-	* Added a number of new whitelabeling options in the activity log reports. Users can now add the business name, contact details, business logo and more in the reports.
-	* Users can now change the report title, add comments etc.
-	* Tags for Loggly & AWS Cloudwatch: add tags to the [WordPress activity logs mirrored to your logs management system](https://wpactivitylog.com/features/integration-mirroring-tools-wordpress-activity-log/).
+= 4.5.2 (2023-05-11) =
 	
 * **Plugin & features improvements**
-	* Users can now specify the number of hours when configuring a timeout for idle sessions.
-	* Automatic plugin and theme updates are now detected and reported in the activity log (event ID: 5004).
-	* Improved the logic of event ID 4029 - the user triggering the password reset request is now reported as the user who did the action.
-	* Added the format of the generated report in the periodic reports list.
-	* Draft posts can also be included  in reports criteria.
-	* The function to import / export plugin settings replaced with our own library (to be used in other plugins).
-	* Plugin now uses the hook 'deleted_theme' to detect deletion of installed themes.
-	* Removed the multisite tab from built-in notifications when installed on single site.
-	* Added a check so the name of a mirroring connection cannot be empty.
-	* Plugin now checks if there is an existing mirroring connection with the same name so not to overwrite existing ones.
-	* Removed redundant "Save" button from the "Delete activity log data" page. 
-	* Improved the Integrations wizard - catered for a number of conflicts with other plugins and themes such as Divi.
-	* Reviewed and improved the text in the [WordPress users' sessions management](https://wpactivitylog.com/features/wordpress-users-sessions-management-tools/) module.
-	* Reports generation errors now contain details of why reports failed instead of generic errors, helping the user identify what the issue might be.
-	* When deleting data about an IP address or a user from the logs, the user is now asked if they want to delete the events about the user / where the IP address is mentioned, or events generated from that user or IP address.
-	* Optimized the way licensing data is stored on a multisite network.
-	* Premium plugin advert in activity log viewer is now fixed - it does not interrupt user.
-	* Added a new filter to specify which long data fields should be truncated in the activity log viewer.
-	* "Email Notifications" section renamed to "Email & SMS Notifications".
-	* Reviewed and rewritten the help text in the Sessions module to advise users to terminate current sessions before restricting sessions.
-	* Applied a number of UI/UX tweakts to the Enable/Disable events section making it neater and easier to use.
-	* Post titles are now reported and linked to the post in the daily update email.
+	* Improved PHP 8.2 compatability.	
+	* Replaced the elipsis icon used for the Event data viewer with a "More details" button in the activity log viewer.
+	* Updated a number of hooks (better interoperability) used in custom sensors.
+	* Improved the "installed plugin" check to only show one extension notification when both the free and premium edition of a plugin are installed at the same time.
+	* Activity log data is also automatically deleted from the archive database when using the logs data deletion tool.
+	
+* **Security updates**
+	* Fixed a number of CSRFs, missing authorization & missing capabilities checks discovered by Marco from Wordfence.
 	
 * **Bug fixes**
-	* When user changes multiple plugin settings the plugin now is reporting all the changes and not just one.
-	* Fatal error reported when running certain activity log searches.
-	* Event ID 6310 no longer incorrectly reported with every plugin setting change.
-	* Fixed: activity log retention settings deleted and rewritten to database on page reloads.
-	* Fixed: some premium features such as the "link to view all users activity" available in the free edition.
-	* Fixed: New notification help text shows HTML code rather than formatted message.
-	* Fixed: Clicking the expand data in activity log viewer resets the view and redirects the user to top of the activity log.
-	* Fixed: Reports filter "Post type" was not finding events about posts with some custom post types.
-	* Fixed: Changes in activity log retention settings not correctly reported in event ID 6052.
-	* Fixed: When a user changes a post's title and content, only the title change is reported.
-	* Fixed: Deleting of activity log events by severity is not deleting the events.
-	* Fixed: Excape characters in password cause authentication with third party services to fail.
-	* Fixed: The setting "Cleanup expired session data" cannot be disabled.
-	* Fixed: Step 2 in the integrations wizard is not "scrollable" if you go back to it while configuring a connection.
-	* Fixed: changes in built-in email notifications are not saved in some specific scenarios.
+	* Fixed: Fatal error reported when cloning a site on a multisite network with the NS Cloner plugin.
+	* Fixed: Plugin was not retrieving the correct IP address when using a reverse proxy since update 4.5.0.
+	* Addressed a number of PHP Warnings reported when using the WP Rocket plugin to purge the cache.
+	* Fixed: PHP warning when saving Exclude Objects settings.
+	* Setting up a mirroring connection and configuring the mirror of logs was not being reported in the logs.
+	* Fixed: Fatal error when using the User Switching plugin to switch a user's session.
+	* Fixed: Logins from non-native login forms (such as those from WooCommerce) were not captured correctly since update 4.5.0.
+	* Fixed: Plugin not terminating existing user session when the seting to "overwrite existing session" was enabled.
 
 Refer to the [complete plugin changelog](https://wpactivitylog.com/support/kb/plugin-changelog/?utm_source=wordpress.org&utm_medium=referral&utm_campaign=WSAL&utm_content=plugin+repos+description) for more detailed information about what was new, improved and fixed in previous versions of the WP Activity Log plugin.
