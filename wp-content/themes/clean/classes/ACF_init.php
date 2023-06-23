@@ -52,7 +52,9 @@ class ACF_init
             'freelancer' => 'Freelancers Block',
             'cv' => 'CV Block',
             'technologies' => 'Technologies Block',
-            'black' => 'Black Block'
+            'black' => 'Black Block',
+            'green' => 'Green Block',
+            'dev' => 'Developer Block'
         );
 
         foreach ($blocks as $id => $name) {
