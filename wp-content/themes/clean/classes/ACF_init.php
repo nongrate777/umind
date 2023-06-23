@@ -54,7 +54,8 @@ class ACF_init
             'technologies' => 'Technologies Block',
             'black' => 'Black Block',
             'green' => 'Green Block',
-            'dev' => 'Developer Block'
+            'dev' => 'Developer Block',
+            'arrow' => 'Arrow Block'
         );
 
         foreach ($blocks as $id => $name) {
