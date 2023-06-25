@@ -1,9 +1,210 @@
 .footer {
-  padding: 20px 0;
+  padding: 130px 0 20px 0;
   background: $black;
   color: $white;
 
+  &__title {
+    font-size: 50px;
+    font-weight: 700;
+    line-height: 60px;
+  }
+
+  &__description {
+    padding: 36px 0;
+    color: rgba(255, 255, 255, 0.80);
+    font-size: 15px;
+    line-height: 150%;
+  }
+
+  &__link {
+    font-size: 24px;
+    font-weight: 700;
+    line-height: 130%;
+    color: $white;
+    text-decoration-line: underline;
+  }
+
+  &__part2 {
+    padding: 70px 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    position: relative;
+
+    &-left {
+      position: absolute;
+      left: 0;
+      top: 70px;
+    }
+
+    &-right3 {
+      margin-left: 100px;
+      max-width: 180px;
+    }
+
+    &-right2 {
+      margin-left: 100px;
+      max-width: 180px;
+    }
+  }
+
+  &__part3 {
+    position: relative;
+
+    &-policy {
+      position: absolute;
+      right: 0;
+      top: 0;
+
+      a {
+        font-size: 13px;
+        color: rgba(255, 255, 255, 0.5);
+        font-weight: 500;
+        line-height: 24px;
+        transition: 0.5s;
+
+        &:hover {
+          color: #2BB639;
+        }
+      }
+    }
+  }
+
+  &__part1 {
+    display: flex;
+    flex-wrap: wrap;
+    padding-bottom: 130px;
+
+    &-inner {
+      width: 33%;
+
+    }
+
+    &-form {
+      width: 66%;
+      padding-left: 100px;
+
+      .first-row {
+        display: flex;
+        flex-wrap: wrap;
+        width: 100%;
+
+        &-right {
+          margin-left: 24px;
+        }
+      }
+
+      .second-row {
+        display: flex;
+        flex-wrap: wrap;
+        width: 100%;
+        margin-top: 36px;
+        margin-bottom: 36px;
+
+        &-right {
+          margin-left: 24px;
+        }
+      }
+
+      textarea {
+        border-radius: 4px;
+        background: rgba(255, 255, 255, 0.15);
+        color: rgba(255, 255, 255, 0.5);
+        border: none;
+        min-width: 692px;
+        margin-bottom: 36px;
+      }
+
+      input {
+        min-height: 54px;
+        border-radius: 4px;
+        background: rgba(255, 255, 255, 0.15);
+        color: rgba(255, 255, 255, 0.5);
+        border: none;
+        min-width: 333px;
+
+      }
+      input[type="submit"]{
+        background: transparent;
+        border: 1px solid  #2BB639;
+        color: #2BB639;
+        transition: 0.5s;
+        text-transform: uppercase;
+        min-width: 190px;
+        margin-top: 36px;
+        &:hover{
+          cursor: pointer;
+          color: $white;
+          background: #2BB639;
+        }
+      }
+    }
+  }
+
+  &__address {
+    font-size: 15px;
+    color: rgba(255, 255, 255, 0.5);
+    line-height: 150%;
+
+    &-title {
+      font-size: 18px;
+      color: $white;
+      padding-bottom: 24px;
+      font-weight: 700;
+      line-height: 130%;
+    }
+  }
+
+  &__contact {
+    font-size: 18px;
+    color: $white;
+    padding-bottom: 24px;
+    font-weight: 700;
+    line-height: 130%;
+
+    &-email {
+      a {
+        font-size: 15px;
+        color: rgba(255, 255, 255, 0.5);
+        line-height: 150%;
+        text-decoration: none;
+      }
+    }
+
+    &-phone {
+      a {
+        font-size: 15px;
+        color: rgba(255, 255, 255, 0.5);
+        line-height: 150%;
+        text-decoration: none;
+      }
+    }
+  }
+
+  &__join {
+    font-size: 18px;
+    color: $white;
+    padding-bottom: 24px;
+    font-weight: 700;
+    line-height: 130%;
+    text-decoration: underline;
+    transition: 0.5s;
+
+    &:hover {
+      color: #2BB639;
+      cursor: pointer;
+    }
+
+    span {
+      color: #2BB639;
+    }
+  }
+
   &__copyright {
-    font-size: 12px;
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.5);
+    font-weight: 500;
+    line-height: 24px;
   }
 }
