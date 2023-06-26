@@ -266,53 +266,7 @@ class General
         return $result;
     }
 
-    public static function update_db(): void
-    {
-        if (is_user_logged_in()) {
-            global $wpdb;
 
-            $character_set_database = $wpdb->get_results('SHOW VARIABLES LIKE "character\_set\_database"', OBJECT);
-            $collation_database = $wpdb->get_results('SHOW VARIABLES LIKE "collation\_database"', OBJECT);
-            if ($character_set_database[0]->Value != 'utf8mb4' || $collation_database[0]->Value != 'utf8mb4_unicode_ci')
-                $wpdb->query('ALTER DATABASE `' . $wpdb->dbname . '` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;', OBJECT);
-
-            $table_status = $wpdb->get_results('SHOW TABLE STATUS', OBJECT);
-            foreach ($table_status as $table) {
-                if ($table->Collation != 'utf8mb4_unicode_ci') {
-                    $wpdb->query('ALTER TABLE `' . $table->Name . '` CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;', OBJECT);
-                }
-            }
-
-            if (wp_get_environment_type() === 'local') {
-                $last_update_db = get_option('last_update_db');
-                if ($last_update_db) {
-                    if (time() - $last_update_db > WEEK_IN_SECONDS) {
-                        add_action('admin_notices', 'show_notice_update_db');
-                        function show_notice_update_db()
-                        {
-                            echo '<div class="error" style="padding:15px"><b>База данных с production обновлялась более 7 дней назад</b></div>';
-                        }
-                    }
-                } else {
-                    add_option('last_update_db', time());
-                }
-
-                $clean_tables = array(
-                    $wpdb->prefix . 'aiowps_failed_logins',
-                    $wpdb->prefix . 'aiowps_login_lockdown',
-                    $wpdb->prefix . 'wsal_metadata',
-                    $wpdb->prefix . 'wsal_occurrences'
-                );
-
-                foreach ($table_status as $table) {
-                    if(in_array($table->Name, $clean_tables))
-                        $wpdb->query('TRUNCATE `' . $table->Name . '`');
-                }
-            } else {
-                delete_option('last_update_db');
-            }
-        }
-    }
 }
 
 General::instance();

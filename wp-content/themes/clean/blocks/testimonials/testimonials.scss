@@ -1,0 +1,36 @@
+.testimonials {
+  position: relative;
+  background: $black;
+  padding-bottom: 130px;
+  h2{
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.5);
+    font-weight: 700;
+    line-height: 100%;
+    text-transform: uppercase;
+    padding-bottom: 24px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  .swiper-slide{
+    &__nav{
+      text-align: right;
+    }
+    &__top{
+      font-size: 30px;
+      color: $white;
+      font-weight: 500;
+      margin-bottom: 32px;
+      span{
+        text-decoration: underline;
+        color: #2BB639;
+      }
+    }
+    &__center{
+      font-size: 15px;
+      font-weight: 500;
+      line-height: 150%;
+      color: rgba(255, 255, 255, 0.8);
+    }
+  }
+
+}

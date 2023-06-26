@@ -25,7 +25,7 @@
   &__menu {
     display: flex;
     align-items: center;
-    padding: 0;
+    padding-left: 450px;
     margin: 0;
 
     @include media768 {
@@ -49,7 +49,7 @@
     }
 
     li {
-      margin: 0 15px;
+      margin: 0 20px;
       list-style: none;
 
       @include media768 {
@@ -59,8 +59,8 @@
 
     a {
       color: $white;
-      font-weight: 500;
-      font-size: 14px;
+      font-weight: 700;
+      font-size: 15px;
       line-height: 24px;
       text-decoration: none;
       transition: .3s;
@@ -78,19 +78,21 @@
 
   &__button {
     text-decoration: none;
-    color: $lightGreen;
+    color: $green;
+    text-transform: uppercase;
     background: $black;
-    border: 1px solid $lightGreen;
-    padding: 8px 15px;
-    font-weight: 500;
-    border-radius: 5px;
-    transition: .3s;
+    border: 1px solid $green;
+    padding: 18px 19px;
+    font-weight: 700;
+    border-radius: 4px;
+    transition: .5s;
     min-width: 130px;
+    font-size: 14px;
     text-align: center;
 
     &:hover {
-      background: $white;
-      color: $black;
+      background: $green;
+      color: $white;
     }
 
     @include media768 {
