@@ -50,13 +50,19 @@ class ACF_init
             'banner' => 'Banner Block',
             'accordion' => 'Accordion Block',
             'freelancer' => 'Freelancers Block',
+            'freelancer_inner' => 'Freelancer Inner Block',
             'cv' => 'CV Block',
             'technologies' => 'Technologies Block',
             'black' => 'Black Block',
             'green' => 'Green Block',
+            'green_inner' => 'Green Inner Block',
             'dev' => 'Developer Block',
+            'dev_about' => 'Dev About_Us Block',
             'arrow' => 'Arrow Block',
-            'testimonials' => 'Testimonials Block'
+            'testimonials' => 'Testimonials Block',
+            'region' => 'Region Block',
+            'white' => 'White Block',
+            'contact' => 'Contact Block'
         );
 
         foreach ($blocks as $id => $name) {

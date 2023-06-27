@@ -1,0 +1,55 @@
+.freelancerin {
+  padding: 130px 0 70px;
+  background-color: $white;
+
+  h2 {
+    font-style: normal;
+    font-weight: 700;
+    font-size: 50px;
+    line-height: 120%;
+    text-align: left;
+    color: $h2_text;
+    padding-bottom: 80px;
+  }
+
+  &__inner {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 104px;
+  }
+
+  &__fields {
+    flex-basis: calc(31% - 52px);
+    width: calc(32% - 52px);
+    box-sizing: border-box;
+    display: inline-flex;
+    align-items: flex-start;
+    padding-bottom: 100px;
+
+    &-image {
+      margin-right: 15px;
+      width: 32px;
+      height: 32px;
+
+      img {
+        width: 32px;
+        height: 32px;
+        max-width: 32px;
+      }
+    }
+
+    &-item {
+      font-weight: 700;
+      font-size: 24px;
+      line-height: 130%;
+      color: $h2_text;
+      padding-bottom: 32px;
+    }
+    &-inner{
+      font-size: 15px;
+      font-weight: 500;
+      line-height: 150%;
+      color: rgba(18, 18, 18, 0.8);
+    }
+  }
+}

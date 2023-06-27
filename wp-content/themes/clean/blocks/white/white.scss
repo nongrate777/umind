@@ -1,0 +1,37 @@
+.white {
+  padding: 160px 0 0 0;
+
+  h2 {
+    font-size: 64px;
+    color: $h2_text;
+    font-weight: 700;
+    line-height: 120%;
+  }
+
+  &__description {
+    font-size: 15px;
+    color: rgba(18, 18, 18, 0.8);
+    font-weight: 500;
+    line-height: 150%;
+    margin-top: 6px;
+    padding-bottom: 50px;
+  }
+  &__phone{
+    a{
+      font-size: 24px;
+      color: $h2_text;
+      font-weight: 700;
+      line-height: 130%;
+      text-decoration-line: underline;
+    }
+  }
+  &__email{
+    a{
+      font-size: 24px;
+      color: $h2_text;
+      font-weight: 700;
+      line-height: 130%;
+      text-decoration-line: underline;
+    }
+  }
+}

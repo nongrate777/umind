@@ -1,0 +1,133 @@
+.dev_about {
+  margin-top: 130px;
+  padding-bottom: 80px;
+  background-color: $white;
+
+  &__subtitle {
+    color: rgba(18, 18, 18, 0.8);
+    text-transform: uppercase;
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 100%;
+    padding-bottom: 24px;
+    border-bottom: 1px solid rgba(229, 232, 235, 1);
+  }
+
+  &__title {
+    padding-top: 40px;
+    padding-bottom: 80px;
+    color: $h2_text;
+    font-size: 50px;
+    font-weight: 700;
+    line-height: 130%;
+    span{
+      text-decoration: underline;
+      color: rgba(43, 182, 57, 1);
+    }
+
+  }
+
+  &__cols {
+    display: flex;
+    flex-wrap: wrap;
+
+    gap: 120px;
+
+    &-inner {
+      flex-basis: calc(50% - 60px);
+      color: rgba(18, 18, 18, 0.8);
+      font-size: 15px;
+      font-weight: 500;
+      line-height: 150%;
+      h3{
+        font-size: 30px;
+        color: $h2_text;
+        font-weight: 700;
+        line-height: 130%;
+      }
+    }
+  }
+
+  &__tab {
+    &-content {
+      .tab-item {
+        display: none;
+        transition: 0.5s;
+        min-height: 200px;
+
+        &-second {
+          padding: 80px 250px 0 250px;
+          text-align: center;
+          color: $h2_text;
+          font-size: 24px;
+          font-weight: 700;
+          line-height: 130%;
+        }
+
+        &-first {
+          padding-top: 60px;
+          line-height: 130%;
+          span{
+            font-size: 18px;
+            color: $h2_text;
+            font-weight: 700;
+            line-height: 130%;
+            margin-right: 80px;
+            margin-bottom: 40px;
+            display: inline-block;
+            padding-right: 30px;
+            transition: 0.5s;
+            background: url("data:image/svg+xml,%3Csvg width='8' height='13' viewBox='0 0 8 13' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L6 6.5L1 12' stroke='%23E5E8EB' stroke-width='2'/%3E%3C/svg%3E%0A") no-repeat right center;
+            &:hover{
+              color: rgba(43, 182, 57, 1);
+              cursor: pointer;
+              background: url("data:image/svg+xml,%3Csvg width='8' height='13' viewBox='0 0 8 13' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L6 6.5L1 12' stroke='%232BB639' stroke-width='2'/%3E%3C/svg%3E%0A") no-repeat right center;
+            }
+          }
+        }
+      }
+
+      .tab-item.active {
+        display: block;
+        transition: 0.5s;
+      }
+    }
+
+    &-container {
+      width: 100%;
+      transition: 0.5s;
+    }
+
+    &-buttons {
+      display: flex;
+      border-bottom: 1px solid rgba(229, 232, 235, 1);
+      padding-top: 100px;
+    }
+
+    &-button {
+      padding: 10px;
+      border: none;
+      cursor: pointer;
+      background: none;
+      transition: 0.5s;
+      font-size: 14px;
+      font-weight: 700;
+      line-height: 100%;
+      text-transform: uppercase;
+      color: $h2_text;
+    }
+
+    &-button.active {
+      border-bottom: 1px solid rgba(43, 182, 57, 1);
+      transition: 0.5s;
+      color: #2BB639;
+      font-size: 14px;
+      font-weight: 700;
+      line-height: 100%;
+      text-transform: uppercase;
+    }
+  }
+}
+
+
+
