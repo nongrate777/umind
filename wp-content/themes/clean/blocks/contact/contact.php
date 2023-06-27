@@ -23,7 +23,7 @@ $fields = get_fields();
                 <?php } ?>
 
                 <div class="contact__link">
-                    <a href="#"></a>
+                    <a href="https://www.linkedin.com/in/nataliaosipchik/" target="_blank"></a>
                 </div>
                 <div class="contact__call">
                     <a href="#">Book a call with us to discuss</a>

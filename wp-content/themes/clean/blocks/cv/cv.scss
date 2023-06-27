@@ -1,6 +1,7 @@
-.cv{
+.cv {
   background-color: $white;
-  h2{
+
+  h2 {
     padding: 130px 0 50px 0;
     font-style: normal;
     font-weight: 700;
@@ -9,7 +10,8 @@
     color: $h2_text;
     margin: 0;
   }
-  p{
+
+  p {
     font-style: normal;
     font-weight: 500;
     font-size: 15px;
@@ -18,15 +20,18 @@
     opacity: 0.8;
     padding-bottom: 80px;
   }
-  &__fields{
+
+  &__fields {
     display: flex;
     flex-direction: row;
-    padding: 40px 0 80px 0;
+    padding: 40px 0 140px 0;
     align-items: center;
     border-top: 1px solid #E5E8EB;
     transition: 0.5s;
     background: rgba(255, 255, 255, 0);
-    position: relative; /* Добавляем позиционирование для вложенного блока */
+    position: relative;
+
+
 
     &::before {
       content: "";
@@ -47,16 +52,20 @@
       border-top: 1px solid $white;
       cursor: pointer;
     }
+
     &:hover &-number {
       color: $white;
     }
+
     &:hover &-title {
       color: $white;
     }
+
     &:hover &-description {
       color: $white;
     }
-    &-number{
+
+    &-number {
       font-style: normal;
       font-weight: 700;
       font-size: 14px;
@@ -66,9 +75,10 @@
       padding-right: 200px;
       position: relative;
       z-index: 1;
-      transition:  0.5s;
+      transition: 0.5s;
     }
-    &-title{
+
+    &-title {
       font-style: normal;
       font-weight: 700;
       font-size: 30px;
@@ -77,9 +87,10 @@
       max-width: 320px;
       position: relative;
       z-index: 1;
-      transition:  0.5s;
+      transition: 0.5s;
     }
-    &-description{
+
+    &-description {
       max-width: 290px;
       margin-left: 160px;
       font-style: normal;
@@ -90,9 +101,22 @@
       color: $h2_text;
       position: relative;
       z-index: 1;
-      transition:  0.5s;
+      transition: 0.5s;
+      &-button {
+        margin-top: 60px;
+        position: absolute;
+        a {
+          color: $white;
+          border-radius: 4px;
+          border: 1px solid $white;
+          padding: 18px 35px;
+          text-transform: uppercase;
+          text-decoration: none;
+        }
+      }
     }
   }
+
   @include media576 {
     padding: 50px 0 20px;
   }

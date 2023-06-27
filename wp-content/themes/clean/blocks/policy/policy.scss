@@ -1,0 +1,33 @@
+.policy {
+  padding: 160px 0 0 0;
+
+  h2 {
+    font-size: 64px;
+    color: $h2_text;
+    text-align: center;
+    font-weight: 700;
+    line-height: 120%;
+  }
+
+  &__description {
+    color: rgba(18, 18, 18, 0.80);
+    font-size: 15px;
+    font-weight: 500;
+    line-height: 150%;
+    margin-top: 6px;
+    padding: 80px 90px;
+    h4{
+      padding: 40px 0 24px 0;
+      font-size: 24px;
+      color: $h2_text;
+      font-weight: 700;
+      line-height: 130%;
+    }
+    h3{
+      font-size: 30px;
+      color: $h2_text;
+      font-weight: 700;
+      line-height: 130%;
+    }
+  }
+}

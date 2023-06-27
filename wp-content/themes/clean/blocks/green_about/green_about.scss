@@ -1,0 +1,54 @@
+.green_about {
+  color: $white;
+
+
+  &__bottom {
+    display: flex;
+    flex-wrap: wrap;
+    padding-top: 110px;
+
+    &-desc {
+
+      font-size: 18px;
+    }
+
+    &-button {
+      margin-left: 60px;
+      a {
+        text-align: center;
+        font-size: 15px;
+        font-weight: 700;
+        text-transform: uppercase;
+        padding: 14px 40px;
+        border-radius: 4px;
+        border: 1px solid $white;
+        display: block;
+        color: $white;
+        text-decoration: none;
+        transition: 0.5s;
+        &:hover{
+          color: $h2_text;
+          background-color: $white;
+        }
+      }
+    }
+  }
+
+  .container {
+    background: radial-gradient(227.36% 168.09% at 21.13% 35.92%, #0F8D1B 0%, #2BB639 100%);
+    border-radius: 12px;
+
+    h2 {
+      font-style: normal;
+      font-weight: 700;
+      font-size: 50px;
+      line-height: 120%;
+      padding-right: 35%;
+    }
+
+    .double {
+      padding: 60px 65px;
+
+    }
+  }
+}
