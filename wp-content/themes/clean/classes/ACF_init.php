@@ -48,10 +48,12 @@ class ACF_init
     {
         $blocks = array(
             'banner' => 'Banner Block',
+            'bannerin' => 'Banner inner Block',
             'accordion' => 'Accordion Block',
             'freelancer' => 'Freelancers Block',
             'freelancer_inner' => 'Freelancer Inner Block',
             'cv' => 'CV Block',
+            'cv_black' => 'Black CV Block',
             'technologies' => 'Technologies Block',
             'black' => 'Black Block',
             'green' => 'Green Block',

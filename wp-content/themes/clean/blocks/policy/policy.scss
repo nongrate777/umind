@@ -8,7 +8,14 @@
     font-weight: 700;
     line-height: 120%;
   }
-
+  &__date{
+    color: rgba(18, 18, 18, 0.80);
+    text-align: center;
+    font-size: 15px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: 150%;
+  }
   &__description {
     color: rgba(18, 18, 18, 0.80);
     font-size: 15px;

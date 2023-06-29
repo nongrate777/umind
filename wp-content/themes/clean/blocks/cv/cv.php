@@ -18,10 +18,12 @@ $fields = get_fields();
                         <div class="cv__fields-number"><?php echo $cv['number']; ?>/</div>
                         <div class="cv__fields-title"><?php echo $cv['cv_title']; ?></div>
                         <div class="cv__fields-description">
-                            <?php echo $cv['cv_description']; ?>
-                            <div class="cv__fields-description-button">
-                                <a href="/we-are-hiring/"><?php echo $cv['cv_button']; ?></a>
-                            </div>
+                            <?php echo $cv['cv_description'];
+                            if (!empty($cv['cv_button'])) { ?>
+                                <div class="cv__fields-description-button">
+                                    <a href="/we-are-hiring/"><?php echo $cv['cv_button']; ?></a>
+                                </div>
+                            <?php } ?>
                         </div>
 
                     </div>
