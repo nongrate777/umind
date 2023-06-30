@@ -20,6 +20,12 @@
     font-size: 50px;
     font-weight: 700;
     line-height: 130%;
+    @include media768 {
+      font-size: 36px;
+      font-style: normal;
+      font-weight: 700;
+      line-height: 120%;
+    }
 
     span {
       text-decoration: underline;
@@ -40,6 +46,9 @@
       font-size: 15px;
       font-weight: 500;
       line-height: 150%;
+      @include media768 {
+        flex-basis: 100%;
+      }
 
       li {
         list-style-image: url("data:image/svg+xml,%3Csvg width='27' height='31' viewBox='0 0 27 31' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M14 26C20.0751 26 25 21.0751 25 15C25 8.92487 20.0751 4 14 4C7.92487 4 3 8.92487 3 15C3 21.0751 7.92487 26 14 26ZM19.7557 12.6549C20.1174 12.2376 20.0723 11.606 19.6549 11.2443C19.2376 10.8826 18.606 10.9277 18.2443 11.3451L12.4477 18.0335L9.70709 15.2929C9.31657 14.9024 8.6834 14.9024 8.29288 15.2929C7.90235 15.6834 7.90235 16.3166 8.29288 16.7071L12.5523 20.9665L19.7557 12.6549Z' fill='%232BB639'/%3E%3C/svg%3E%0A");

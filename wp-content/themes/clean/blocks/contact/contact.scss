@@ -12,9 +12,17 @@
   &__part {
     display: flex;
     flex-wrap: wrap;
+    @include media768 {
+      flex-direction: column;
+
+    }
 
     &-form {
       width: 66%;
+      @include media768 {
+        width: 100%;
+
+      }
 
       .file-button {
 
@@ -35,6 +43,11 @@
           line-height: 150%;
           transition: 0.5s;
           width: 690px;
+          @include media768{
+            min-width: 100%;
+            margin-left: 0;
+            width: 100%;
+          }
         }
 
 
@@ -50,6 +63,10 @@
 
         &-right {
           margin-left: 24px;
+          @include media768{
+            min-width: 100%;
+            margin-left: 0;
+          }
         }
       }
 
@@ -62,6 +79,10 @@
 
         &-right {
           margin-left: 24px;
+          @include media768{
+            min-width: 100%;
+            margin-left: 0;
+          }
         }
       }
 
@@ -72,6 +93,10 @@
         border: none;
         min-width: 692px;
         margin-bottom: 36px;
+        @include media768{
+          min-width: 100%;
+
+        }
       }
 
       input {
@@ -81,6 +106,10 @@
         color: rgba(18, 18, 18, 0.5);
         border: none;
         min-width: 333px;
+        @include media768{
+          min-width: 100%;
+
+        }
 
       }
 
@@ -92,7 +121,10 @@
         text-transform: uppercase;
         min-width: 190px;
         margin-top: 36px;
+        @include media768{
+          min-width: 100%;
 
+        }
         &:hover {
           cursor: pointer;
           color: $white;
@@ -104,14 +136,20 @@
     &-inner {
       width: 32%;
       padding-left: 32px;
+      @include media768 {
+        width: 100%;
+        padding-left: 0;
+      }
     }
   }
-  &__image{
-    img{
+
+  &__image {
+    img {
       border-radius: 50%;
     }
   }
-  &__name{
+
+  &__name {
     font-size: 18px;
     color: $h2_text;
     font-weight: 700;
@@ -119,28 +157,34 @@
     padding-top: 20px;
     padding-bottom: 8px;
   }
-  &__job{
+
+  &__job {
     font-size: 15px;
     color: rgba(18, 18, 18, 0.8);
     font-weight: 500;
     line-height: 150%;
   }
-  &__link{
+
+  &__link {
     padding-top: 20px;
-    a{
+
+    a {
       display: block;
       width: 40px;
       height: 40px;
       background: url("data:image/svg+xml,%3Csvg width='42' height='42' viewBox='0 0 42 42' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M21 42C32.598 42 42 32.598 42 21C42 9.40202 32.598 0 21 0C9.40202 0 0 9.40202 0 21C0 32.598 9.40202 42 21 42Z' fill='%23F8F9FA'/%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M16.4356 17.7143C15.6432 17.7143 15 17.1066 15 16.3571C15 15.6071 15.6432 15 16.4356 15C17.2286 15 17.8714 15.6071 17.8714 16.3571C17.8714 17.1066 17.2286 17.7143 16.4356 17.7143ZM21.734 19.9458V18.7233H19.1592V26.4835H21.734V21.5679C21.7624 21.5182 21.7868 21.4659 21.8119 21.412C21.8656 21.2969 21.9226 21.1746 22.0295 21.0553C22.3433 20.707 22.7087 20.5161 23.1611 20.5161C23.6997 20.5161 24.0131 20.7773 24.2224 21.1072C24.4303 21.4381 24.4663 21.6296 24.4663 21.9422V26.4835H26.9722V21.9422C26.9722 20.1157 26.084 18.5493 24.1703 18.5493C22.6124 18.5493 22.0969 19.3714 21.8233 19.8077C21.7905 19.86 21.7612 19.9067 21.734 19.9458ZM17.7669 26.4835H15.1222V18.7233H17.7669V26.4835Z' fill='%23121212'/%3E%3C/svg%3E%0A") no-repeat center center;
       transition: 0.5s;
-      &:hover{
+
+      &:hover {
         background: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='20' cy='20' r='20' transform='matrix(-1 0 0 1 40 0)' fill='%232BB639'/%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M15.613 16.0497C14.7227 16.0497 14 15.3669 14 14.5247C14 13.6821 14.7227 13 15.613 13C16.5039 13 17.2261 13.6821 17.2261 14.5247C17.2261 15.3669 16.5039 16.0497 15.613 16.0497ZM21.5656 18.5566V17.1831H18.6726V25.9021H21.5656V20.3791C21.5975 20.3232 21.6249 20.2645 21.6531 20.2039C21.7134 20.0746 21.7774 19.9372 21.8976 19.8032C22.2501 19.4119 22.6607 19.1973 23.169 19.1973C23.7742 19.1973 24.1262 19.4908 24.3614 19.8615C24.5951 20.2332 24.6354 20.4485 24.6354 20.7996V25.9021H27.451V20.7996C27.451 18.7475 26.453 16.9876 24.3029 16.9876C22.5525 16.9876 21.9733 17.9112 21.6659 18.4014L21.6659 18.4014C21.6291 18.4602 21.5961 18.5127 21.5656 18.5566ZM17.1084 25.9023H14.137V17.1833H17.1084V25.9023Z' fill='white'/%3E%3C/svg%3E%0A") no-repeat center center;
       }
     }
   }
-  &__call{
+
+  &__call {
     padding-top: 64px;
-    a{
+
+    a {
       text-align: center;
       font-size: 24px;
       color: $h2_text;

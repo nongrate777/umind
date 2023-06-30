@@ -5,4 +5,8 @@
     @include media1200 {
         width: 100%;
     }
+    @include media768{
+       padding: 0 15px;
+
+    }
 }
