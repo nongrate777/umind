@@ -107,6 +107,27 @@ class General
                 return array();
             }
         }
+        function get_headings() {
+            global $post;
+
+            $headings = array();
+            $content = apply_filters('the_content', $post->post_content);
+            $pattern = '/<h2(.*?)id="(.*?)">(.*?)<\/h2>/i';
+            preg_match_all($pattern, $content, $matches, PREG_SET_ORDER);
+
+            if ($matches) {
+                foreach ($matches as $match) {
+                    $id = $match[2];
+                    $text = strip_tags($match[3]);
+                    $headings[] = array(
+                        'id' => $id,
+                        'text' => $text
+                    );
+                }
+            }
+
+            return $headings;
+        }
 
         function disable_emojis_remove_dns_prefetch($urls, $relation_type)
         {

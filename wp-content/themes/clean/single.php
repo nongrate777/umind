@@ -24,7 +24,7 @@ get_header();
                                     <?php the_content(); ?>
                                 </div>
                                 <div class="column entry-content__right">
-                                    <?php get_sidebar(); ?>
+                                    <?php get_template_part('custom-sidebar-block'); ?>
                                 </div>
                             </div>
                         </div>
