@@ -1,11 +1,59 @@
 .green_about {
   color: $white;
 
+  &__left {
+    width: 75%;
+    @include media768 {
+      width: 100%;
+    }
+  }
+
+  &__right {
+    width: 25%;
+    @include media768 {
+      width: 100%;
+      text-align: center;
+      padding-bottom: 32px;
+    }
+
+    &-name {
+      font-size: 18px;
+      color: $white;
+      font-weight: 700;
+      line-height: 130%;
+      padding-top: 20px;
+      padding-bottom: 8px;
+    }
+
+    &-job {
+      font-size: 15px;
+      color: $white;
+      font-weight: 500;
+      line-height: 150%;
+    }
+
+    &-link {
+      padding-top: 20px;
+
+      a {
+        display: block;
+        width: 40px;
+        height: 40px;
+        background: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='20' cy='20' r='20' transform='matrix(-1 0 0 1 40 0)' fill='%232BB639'/%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M15.613 16.0497C14.7227 16.0497 14 15.3669 14 14.5247C14 13.6821 14.7227 13 15.613 13C16.5039 13 17.2261 13.6821 17.2261 14.5247C17.2261 15.3669 16.5039 16.0497 15.613 16.0497ZM21.5656 18.5566V17.1831H18.6726V25.9021H21.5656V20.3791C21.5975 20.3232 21.6249 20.2645 21.6531 20.2039C21.7134 20.0746 21.7774 19.9372 21.8976 19.8032C22.2501 19.4119 22.6607 19.1973 23.169 19.1973C23.7742 19.1973 24.1262 19.4908 24.3614 19.8615C24.5951 20.2332 24.6354 20.4485 24.6354 20.7996V25.9021H27.451V20.7996C27.451 18.7475 26.453 16.9876 24.3029 16.9876C22.5525 16.9876 21.9733 17.9112 21.6659 18.4014L21.6659 18.4014C21.6291 18.4602 21.5961 18.5127 21.5656 18.5566ZM17.1084 25.9023H14.137V17.1833H17.1084V25.9023Z' fill='white'/%3E%3C/svg%3E%0A") no-repeat center center;
+
+
+      }
+    }
+  }
 
   &__bottom {
     display: flex;
     flex-wrap: wrap;
     padding-top: 110px;
+    @include media768 {
+      padding-top: 24px;
+      padding-bottom: 24px;
+    }
 
     &-desc {
 
@@ -14,6 +62,7 @@
 
     &-button {
       margin-left: 60px;
+
       a {
         text-align: center;
         font-size: 15px;
@@ -26,7 +75,8 @@
         color: $white;
         text-decoration: none;
         transition: 0.5s;
-        &:hover{
+
+        &:hover {
           color: $h2_text;
           background-color: $white;
         }
@@ -43,12 +93,22 @@
       font-weight: 700;
       font-size: 50px;
       line-height: 120%;
-      padding-right: 35%;
+      padding-right: 10%;
+      @include media768 {
+        font-size: 28px;
+        font-style: normal;
+        font-weight: 700;
+        line-height: 130%;
+      }
     }
 
     .double {
       padding: 60px 65px;
-
+      display: flex;
+      flex-wrap: wrap;
+      @include media768 {
+        padding: 25px 0 0 0;
+      }
     }
   }
 }

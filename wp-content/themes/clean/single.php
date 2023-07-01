@@ -10,6 +10,9 @@ get_header();
                     <article id="post-<?php the_ID(); ?>" <?php post_class(); ?>>
                         <header class="entry-header">
                             <h1 class="entry-title"><?php the_title(); ?></h1>
+                            <div class="entry-description">
+                                <?php echo get_the_date('F j, Y'); ?> | <?php the_author_meta('display_name'); ?>
+                            </div>
                         </header>
 
                         <div class="entry-content">

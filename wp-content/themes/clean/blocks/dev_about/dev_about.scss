@@ -37,8 +37,10 @@
   &__cols {
     display: flex;
     flex-wrap: wrap;
-
     gap: 120px;
+    @include media768 {
+      gap: 16px;
+    }
 
     &-inner {
       flex-basis: calc(50% - 60px);
