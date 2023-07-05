@@ -23,6 +23,10 @@
       font-weight: 700;
       line-height: 130%;
       text-decoration-line: underline;
+      transition: 0.5s;
+      &:hover{
+        color: $green;
+      }
     }
   }
   &__email{
@@ -32,6 +36,10 @@
       font-weight: 700;
       line-height: 130%;
       text-decoration-line: underline;
+      transition: 0.5s;
+      &:hover{
+        color: $green;
+      }
     }
   }
 }

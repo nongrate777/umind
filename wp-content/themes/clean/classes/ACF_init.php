@@ -67,7 +67,8 @@ class ACF_init
             'contact' => 'Contact Block',
             'green_about' => 'Green about Block',
             'policy' => 'Policy Block',
-            'blog' => 'Blog inner'
+            'blog' => 'Blog inner',
+            'happy' => 'Happy Block'
         );
 
         foreach ($blocks as $id => $name) {

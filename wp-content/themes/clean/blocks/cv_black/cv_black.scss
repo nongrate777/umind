@@ -9,6 +9,13 @@
     line-height: 110%;
     color: $white;
     margin: 0;
+    @include media768{
+      font-size: 36px;
+      font-style: normal;
+      font-weight: 700;
+      line-height: 120%;
+      padding: 50px 0;
+    }
   }
 
   p {
@@ -30,7 +37,9 @@
     transition: 0.5s;
     background: rgba(255, 255, 255, 0);
     position: relative;
-
+    &:hover{
+      border-top: 1px solid transparent;
+    }
 
 
     &::before {
@@ -64,7 +73,15 @@
     &:hover &-description {
       color: $white;
     }
-
+    &:hover &-description-button a {
+      color: $white;
+      border-color: $white;
+      transition: 0.5s;
+      &:hover{
+        background-color: $white;
+        color: $h2_text;
+      }
+    }
     &-number {
       font-style: normal;
       font-weight: 700;
@@ -76,6 +93,10 @@
       position: relative;
       z-index: 1;
       transition: 0.5s;
+      @include media768{
+        padding-left: 0px;
+        padding-right: 15px;
+      }
     }
 
     &-title {
@@ -89,6 +110,12 @@
       z-index: 1;
       transition: 0.5s;
       min-width: 320px;
+      @include media768{
+        font-size: 28px;
+        font-style: normal;
+        font-weight: 700;
+        line-height: 130%;
+      }
     }
 
     &-description {
@@ -103,9 +130,17 @@
       position: relative;
       z-index: 1;
       transition: 0.5s;
+      @include media768{
+        position: absolute;
+        bottom: 25px;
+        margin-left: 32px;
+      }
       &-button {
         margin-top: 60px;
         position: absolute;
+        @include media768{
+          display: none;
+        }
         a {
           color: $black;
           border-radius: 4px;

@@ -90,9 +90,16 @@
         border-radius: 4px;
         background: #F8F9FA;
         color: rgba(18, 18, 18, 0.5);
-        border: none;
         min-width: 692px;
         margin-bottom: 36px;
+        border: 1px solid transparent;
+        margin-top: 5px;
+        padding-left: 20px;
+        padding-top: 15px;
+        &:focus {
+          border-color: $green  !important;
+          outline: none !important;
+        }
         @include media768{
           min-width: 100%;
 
@@ -104,8 +111,14 @@
         border-radius: 4px;
         background: #F8F9FA;
         color: rgba(18, 18, 18, 0.5);
-        border: none;
         min-width: 333px;
+        border: 1px solid transparent;
+        margin-top: 5px;
+        padding-left: 20px;
+        &:focus {
+          border-color: $green  !important;
+          outline: none !important;
+        }
         @include media768{
           min-width: 100%;
 
@@ -121,6 +134,7 @@
         text-transform: uppercase;
         min-width: 190px;
         margin-top: 36px;
+
         @include media768{
           min-width: 100%;
 
@@ -190,6 +204,10 @@
       color: $h2_text;
       font-weight: 700;
       line-height: 130%;
+      transition: 0.5s;
+      &:hover{
+        color: $green;
+      }
     }
   }
 }

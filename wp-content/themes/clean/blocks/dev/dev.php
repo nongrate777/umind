@@ -24,14 +24,14 @@ $fields = get_fields();
         </div>
         <div class="dev__tab-container">
             <div class="dev__tab-buttons">
-                <button class="dev__tab-button" data-tab="tab1"><?php echo wp_kses_post($fields['tab1']); ?></button>
-                <button class="dev__tab-button active" data-tab="tab2"><?php echo wp_kses_post($fields['tab2']); ?></button>
+                <button class="dev__tab-button active" data-tab="tab1"><?php echo wp_kses_post($fields['tab1']); ?></button>
+                <button class="dev__tab-button" data-tab="tab2"><?php echo wp_kses_post($fields['tab2']); ?></button>
             </div>
             <div class="dev__tab-content">
-                <div id="tab1" class="tab-item">
+                <div id="tab1" class="tab-item active">
                     <div class="tab-item-first"><?php echo wp_kses_post($fields['tab1_inner']); ?></div>
                 </div>
-                <div id="tab2" class="tab-item active">
+                <div id="tab2" class="tab-item">
                     <div class="tab-item-second"><?php echo wp_kses_post($fields['tab2_inner']); ?></div>
                 </div>
             </div>

@@ -71,6 +71,32 @@
                     "parent_repeater": "field_6490833537a51"
                 },
                 {
+                    "key": "field_64a453d27bc06",
+                    "label": "Frontend hover image",
+                    "name": "frontend_hover_image",
+                    "aria-label": "",
+                    "type": "image",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "return_format": "array",
+                    "library": "all",
+                    "min_width": "",
+                    "min_height": "",
+                    "min_size": "",
+                    "max_width": "",
+                    "max_height": "",
+                    "max_size": "",
+                    "mime_types": "",
+                    "preview_size": "medium",
+                    "parent_repeater": "field_6490833537a51"
+                },
+                {
                     "key": "field_6490839437a53",
                     "label": "Frontend name",
                     "name": "frontend_name",
@@ -119,6 +145,32 @@
                     "key": "field_6490867fbd23a",
                     "label": "backend image",
                     "name": "backend_image",
+                    "aria-label": "",
+                    "type": "image",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "return_format": "array",
+                    "library": "all",
+                    "min_width": "",
+                    "min_height": "",
+                    "min_size": "",
+                    "max_width": "",
+                    "max_height": "",
+                    "max_size": "",
+                    "mime_types": "",
+                    "preview_size": "medium",
+                    "parent_repeater": "field_6490867fbd239"
+                },
+                {
+                    "key": "field_64a46034e9532",
+                    "label": "backend image hover",
+                    "name": "backend_hover_image",
                     "aria-label": "",
                     "type": "image",
                     "instructions": "",
@@ -213,6 +265,32 @@
                     "parent_repeater": "field_6490b358f9334"
                 },
                 {
+                    "key": "field_64a44f1537069",
+                    "label": "Mobile hover image",
+                    "name": "mobile_hover_image",
+                    "aria-label": "",
+                    "type": "image",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "return_format": "array",
+                    "library": "all",
+                    "min_width": "",
+                    "min_height": "",
+                    "min_size": "",
+                    "max_width": "",
+                    "max_height": "",
+                    "max_size": "",
+                    "mime_types": "",
+                    "preview_size": "medium",
+                    "parent_repeater": "field_6490b358f9334"
+                },
+                {
                     "key": "field_6490b358f9336",
                     "label": "mobile name",
                     "name": "mobile_name",
@@ -261,6 +339,32 @@
                     "key": "field_6490b3aa5e17e",
                     "label": "cloud image",
                     "name": "cloud_image",
+                    "aria-label": "",
+                    "type": "image",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "return_format": "array",
+                    "library": "all",
+                    "min_width": "",
+                    "min_height": "",
+                    "min_size": "",
+                    "max_width": "",
+                    "max_height": "",
+                    "max_size": "",
+                    "mime_types": "",
+                    "preview_size": "medium",
+                    "parent_repeater": "field_6490b3aa5e17d"
+                },
+                {
+                    "key": "field_64a46184aeaaf",
+                    "label": "cloud hover image",
+                    "name": "cloud_hover_image",
                     "aria-label": "",
                     "type": "image",
                     "instructions": "",
@@ -405,5 +509,5 @@
     "active": true,
     "description": "",
     "show_in_rest": 0,
-    "modified": 1687207332
+    "modified": 1688494491
 }

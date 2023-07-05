@@ -9,7 +9,7 @@
     font-size: 14px;
     font-weight: 700;
     line-height: 100%;
-    padding-bottom: 24px;
+    padding-bottom: 14px;
     border-bottom: 1px solid rgba(229, 232, 235, 1);
   }
 
@@ -21,6 +21,13 @@
     font-weight: 700;
     line-height: 130%;
     padding-right: 218px;
+    @include media768{
+      font-size: 36px;
+      font-style: normal;
+      font-weight: 700;
+      line-height: 120%;
+      padding-right: 0;
+    }
   }
 
   &__cols {
@@ -30,6 +37,7 @@
     gap: 120px;
     @include media768{
       padding-right: 0;
+      gap: 24px;
     }
     &-inner {
       flex-basis: calc(50% - 60px);
@@ -57,6 +65,9 @@
           font-size: 24px;
           font-weight: 700;
           line-height: 130%;
+          @include media768{
+            padding: 40px 0px 0 15px;
+          }
         }
 
         &-first {
@@ -70,7 +81,7 @@
             margin-right: 80px;
             margin-bottom: 40px;
             display: inline-block;
-            padding-right: 30px;
+            min-width: 220px;
             transition: 0.5s;
             background: url("data:image/svg+xml,%3Csvg width='8' height='13' viewBox='0 0 8 13' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L6 6.5L1 12' stroke='%23E5E8EB' stroke-width='2'/%3E%3C/svg%3E%0A") no-repeat right center;
             &:hover{

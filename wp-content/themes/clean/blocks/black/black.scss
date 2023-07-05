@@ -8,6 +8,12 @@
     font-size: 50px;
     line-height: 110%;
     text-align: center;
+    @include media768{
+      font-size: 36px;
+      font-style: normal;
+      font-weight: 700;
+      line-height: 120%;
+    }
   }
 
   &__description {
@@ -52,6 +58,10 @@
         flex-direction: row;
         display: flex;
         padding-top: 25px;
+        @include media768{
+          flex-basis: 100%;
+          width: 100%;
+        }
         &-number{
           font-style: normal;
           font-weight: 700;
@@ -85,12 +95,19 @@
     flex-wrap: wrap;
     padding-bottom: 100px;
     gap: 24px;
+    @include media768{
+      flex-direction: column;
+    }
     &-first{
       flex-basis: calc(33% - 12px);
       width: calc(33% - 12px);
       border: 1px solid rgba(255, 255, 255, 0.15);
       border-radius: 12px;
       padding: 60px 65px;
+      @include media768{
+        flex-basis: 100%;
+        width: 100%;
+      }
       &-list{
         padding-top: 40px;
         min-height: 415px;
@@ -141,6 +158,10 @@
       padding: 60px 65px;
       background: radial-gradient(189.71% 129.9% at 17.45% 27.03%, #3ECD4C 0%, #189B25 100%);
       position: relative;
+      @include media768{
+        flex-basis: 100%;
+        width: 100%;
+      }
       .popular{
         position: absolute;
         background: $white;
@@ -205,6 +226,10 @@
       border: 1px solid rgba(255, 255, 255, 0.15);
       border-radius: 12px;
       padding: 60px 65px;
+      @include media768{
+        flex-basis: 100%;
+        width: 100%;
+      }
       &-list{
         padding-top: 40px;
         min-height: 415px;

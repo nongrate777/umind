@@ -1,0 +1,24 @@
+.happy{
+  text-align: center;
+  h2{
+    font-size: 50px;
+    color: $h2_text;
+    font-style: normal;
+    font-weight: 700;
+    line-height: 120%;
+    span{
+      color: $green;
+      border-bottom: 1px solid $green;
+    }
+  }
+  &__description{
+    text-align: center;
+    font-size: 15px;
+    color: $h2_text;
+    opacity: 0.8;
+    font-style: normal;
+    font-weight: 500;
+    line-height: 150%;
+
+  }
+}

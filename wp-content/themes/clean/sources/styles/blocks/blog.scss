@@ -200,6 +200,10 @@ a.read-more-link {
   line-height: 130%;
   display: block;
   margin-bottom: 100px;
+  transition: 0.5s;
+  &:hover{
+    color: $green;
+  }
 }
 
 .taxonomy-filter {
@@ -264,7 +268,7 @@ a.read-more-link {
 
 
   color: rgba(18, 18, 18, 1);
-  border-left: 1px solid $green;
+  border-left: 2px solid $green;
 
 }
 
@@ -274,8 +278,8 @@ a.read-more-link {
   font-style: normal;
   font-weight: 500;
   line-height: 150%;
-  border-left: 1px solid $white;
-  padding: 8px 0 8px 24px;
+  border-left: 2px solid $white;
+  padding: 8px 0 8px 23px;
   text-decoration: none;
 }
 
