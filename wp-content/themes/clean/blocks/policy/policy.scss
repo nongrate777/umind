@@ -39,5 +39,12 @@
       font-weight: 700;
       line-height: 130%;
     }
+    a{
+      color: $h2_text;
+      transition: 0.5s;
+      &:hover{
+        color: $green;
+      }
+    }
   }
 }

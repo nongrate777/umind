@@ -3,7 +3,7 @@
   background-color: $white;
   @include media768{
     padding-bottom: 0;
-    padding-top: 15px;
+    padding-top: 70px;
   }
   h2{
     font-style: normal;
@@ -29,7 +29,6 @@
     width: 32%;
     box-sizing: border-box;
     display: inline-flex;
-    align-items: center;
     padding-bottom: 100px;
     @include media768{
       flex-basis: 100%;

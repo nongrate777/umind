@@ -21,6 +21,8 @@ for (let i = 0; i < buttonHide.length; i++) {
 
 let mySwiper = new Swiper('.swiper-container', {
   grabCursor: true,
+  slidesPerView: 'auto',
+  spaceBetween: 30,
   navigation: {
     nextEl: '.swiper-prev',
     prevEl: '.swiper-next',
@@ -33,6 +35,10 @@ let mySwiper = new Swiper('.swiper-container', {
     autoHeight: true,
   },
   breakpoints: {
+    1200: {
+      slidesPerView: 3,
+      spaceBetween: 30,
+    },
     992: {
       slidesPerView: 3,
       spaceBetween: 30,

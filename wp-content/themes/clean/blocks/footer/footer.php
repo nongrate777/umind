@@ -47,7 +47,7 @@ $fields = get_field('footer', 'options');
             </div>
             <div class="footer__part2-right3">
                 <?php if (!empty($fields['join_us'])) { ?>
-                    <div class="footer__join"><a href="/we-are-hiring/"><?php echo  $fields['join_us']; ?></a><span>*</span></div>
+                    <div class="footer__join"><a href="/we-are-hiring/"><?php echo  $fields['join_us']; ?></a></div>
                 <?php } ?>
                 <div class="footer__join-social">
                     <a href="#" class="social1"> </a>

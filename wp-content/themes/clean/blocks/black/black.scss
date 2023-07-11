@@ -23,6 +23,7 @@
     line-height: 150%;
     color: rgba(255, 255, 255, 0.8);
     padding-top: 10px;
+    padding-bottom: 80px;
   }
 
   &__bottom_title {
@@ -31,6 +32,12 @@
     font-size: 50px;
     line-height: 120%;
     text-align: center;
+    @include media768{
+      font-size: 28px;
+      font-style: normal;
+      font-weight: 700;
+      line-height: 130%;
+    }
   }
 
   &__bottom_link {
@@ -80,10 +87,9 @@
       }
     }
     &-title{
-      color: $white;
+      color: rgba(255, 255, 255, 0.5);
       text-transform: uppercase;
-      opacity: 0.5;
-      border-bottom: 1px solid $white;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.15);
       font-weight: 700;
       font-size: 14px;
       line-height: 100%;
@@ -123,7 +129,7 @@
         }
       }
       &-button{
-        border-top: 1px solid rgba(255, 255, 255, 0.2);
+        border-top: 1px solid rgba(255, 255, 255, 0.15);
         padding-top: 32px;
         a{
           text-decoration: none;
@@ -158,6 +164,10 @@
       padding: 60px 65px;
       background: radial-gradient(189.71% 129.9% at 17.45% 27.03%, #3ECD4C 0%, #189B25 100%);
       position: relative;
+      &:hover{
+        //background: linear-gradient(342deg, rgba(255, 255, 255, 0.13) 0%, rgba(255, 255, 255, 0.04) 100%);
+
+      }
       @include media768{
         flex-basis: 100%;
         width: 100%;
@@ -226,6 +236,10 @@
       border: 1px solid rgba(255, 255, 255, 0.15);
       border-radius: 12px;
       padding: 60px 65px;
+      &:hover{
+        background: linear-gradient(342deg, rgba(255, 255, 255, 0.13) 0%, rgba(255, 255, 255, 0.04) 100%);
+
+      }
       @include media768{
         flex-basis: 100%;
         width: 100%;

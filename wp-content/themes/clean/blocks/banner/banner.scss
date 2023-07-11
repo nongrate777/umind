@@ -6,7 +6,9 @@
   background-color: $black;
 
   @include media576 {
-    padding: 50px 0;
+    padding: 50px 0 250px;
+    background-size: 100% !important;
+    background-position: 50% 100% !important;
   }
 
   h1 {
@@ -18,7 +20,11 @@
       border-bottom: 1px solid rgba(43, 182, 57, 1);
     }
     @include media576 {
-      font-size: 30px;
+      margin-top: 120px;
+      font-size: 48px;
+      font-style: normal;
+      font-weight: 700;
+      line-height: 110%;
     }
   }
 

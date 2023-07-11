@@ -20,6 +20,12 @@
       color: $white;
       font-weight: 500;
       margin-bottom: 32px;
+      @include media768{
+        font-size: 26px;
+        font-style: normal;
+        font-weight: 700;
+        line-height: 130%;
+      }
       span{
         text-decoration: underline;
         color: #2BB639;
@@ -30,7 +36,31 @@
       font-weight: 500;
       line-height: 150%;
       color: rgba(255, 255, 255, 0.8);
+      @include media768{
+        font-size: 15px;
+        font-style: normal;
+        font-weight: 500;
+        line-height: 150%;
+      }
     }
   }
 
+  .swiper1{
+    position: relative;
+    &:after{
+      content: "";
+      display: block;
+      width: 150px;
+      height: 100%;
+      position: absolute;
+      background: $black;
+      right: 0;
+      opacity: 0.8;
+      top: 0;
+      z-index: 9;
+      @include media768{
+        width:  81px;
+      }
+    }
+  }
 }

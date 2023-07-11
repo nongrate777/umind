@@ -145,6 +145,41 @@
           background: #2BB639;
         }
       }
+      .last{
+        display: flex;
+        flex-wrap: wrap;
+        margin-top: 36px;
+        margin-left: 0;
+        span{
+          padding: 0;
+          font-size: 13px;
+          font-style: normal;
+          font-weight: 500;
+          line-height: 150%;
+
+        }
+      }
+
+      input[type="checkbox"] {
+        background: $h2_text !important;
+        border: 1px solid #2BB639 !important;
+        color: #2BB639;
+        transition: 0.5s;
+        text-transform: uppercase;
+        min-width: fit-content;
+        margin-top: 0;
+        min-height: fit-content;
+        margin-right: 16px;
+        @include media768{
+          min-width: fit-content;
+        }
+
+        &:hover {
+          cursor: pointer;
+          color: $white;
+          background: #2BB639;
+        }
+      }
     }
 
     &-inner {

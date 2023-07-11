@@ -10,6 +10,7 @@
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     @include media768 {
       justify-content: flex-start;
+      border-bottom: none;
     }
   }
 
@@ -42,7 +43,7 @@
 
     @include media768 {
       position: absolute;
-      background: #fff;
+      background: $h2_text;
       top: 0;
       right: 0;
       width: 100%;
@@ -58,6 +59,9 @@
       margin: 0;
       z-index: 500;
       display: none;
+      a{
+        color: $white;
+      }
 
       &_active {
         transform: translateX(0);
@@ -84,7 +88,7 @@
       text-decoration: none;
       transition: .3s;
       @include media768 {
-        color: $h2_text;
+        color: $white;
       }
 
       &:hover {
@@ -165,7 +169,7 @@
     &_active {
       span {
         @include media768 {
-          background-color: $black;
+          background-color: $white;
         }
 
         &:nth-child(1) {
@@ -226,7 +230,7 @@
     text-decoration: none;
     transition: .3s;
     @include media768 {
-      color: $h2_text;
+      color: $white;
     }
 
     &:hover {
@@ -283,7 +287,7 @@
     text-decoration: none;
     transition: .3s;
     @include media768 {
-      color: $h2_text;
+      color: $white;
     }
 
     &:hover {
