@@ -60,6 +60,9 @@
       border-radius: 12px;
       opacity: 0;
       transition: opacity 0.5s; /* Плавное изменение прозрачности */
+      @include media768{
+        background: transparent;
+      }
     }
 
     &:hover::before {
@@ -70,14 +73,23 @@
 
     &:hover &-number {
       color: $white;
+      @include media768{
+        color: $h2_text;
+      }
     }
 
     &:hover &-title {
       color: $white;
+      @include media768{
+        color: $h2_text;
+      }
     }
 
     &:hover &-description {
       color: $white;
+      @include media768{
+        color: $h2_text;
+      }
     }
 
     &-number {
@@ -158,6 +170,29 @@
   @include media576 {
     padding: 50px 0 20px;
   }
-
+  a.join-button{
+    display: none;
+    width: 244px;
+    padding: 18px;
+    text-decoration: none;
+    text-transform: uppercase;
+    background: $green;
+    border: 1px solid $green;
+    border-radius: 6px;
+    color: $white;
+    transition: 0.5s;
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 700;
+    text-align: center;
+    margin-top: 70px;
+    &:hover{
+      background: $white;
+      color: $green;
+    }
+    @include media768{
+      display: block;
+    }
+  }
 
 }

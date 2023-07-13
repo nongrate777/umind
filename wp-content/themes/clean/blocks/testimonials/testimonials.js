@@ -19,20 +19,28 @@ for (let i = 0; i < buttonHide.length; i++) {
   })
 }
 
+
+
 let mySwiper = new Swiper('.swiper-container', {
   grabCursor: true,
   slidesPerView: 'auto',
-  spaceBetween: 30,
+  //loop: true,
   navigation: {
     nextEl: '.swiper-prev',
     prevEl: '.swiper-next',
   },
-  pagination: {
-    el: '.swiper-pagination',
-    clickable: true,
-  },
+  pagination: false,
+
+  slidesOffsetAfter: 50,
   on: {
-    autoHeight: true,
+    slideChange: function() {
+
+      var activeIndex = this.activeIndex + 1;
+      var slideNumberElement = document.querySelector('.slide-number');
+      if (slideNumberElement) {
+        slideNumberElement.textContent = activeIndex.toString();
+      }
+    }
   },
   breakpoints: {
     1200: {
@@ -60,7 +68,10 @@ let mySwiper = new Swiper('.swiper-container', {
       spaceBetween: 50
     }
   },
+
 });
+
+
 
 mySwiper.on('slideChange', function () {
   for (let i = 0; i < hiddenContent.length; i++) {
@@ -71,3 +82,6 @@ mySwiper.on('slideChange', function () {
     removeSpan[i].classList.remove('remove-span--active');
   }
 });
+
+
+

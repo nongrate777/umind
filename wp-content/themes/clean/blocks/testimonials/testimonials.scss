@@ -2,6 +2,14 @@
   position: relative;
   background: $black;
   padding-bottom: 130px;
+  .swiper-number{
+    color: $white;
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 700;
+    line-height: 100%;
+    text-transform: uppercase;
+  }
   h2{
     font-size: 14px;
     color: rgba(255, 255, 255, 0.5);
@@ -47,6 +55,12 @@
 
   .swiper1{
     position: relative;
+
+    .black-back{
+      //width: calc(100% - 40px) !important;
+      //margin-left: 1px;
+     // margin-right: 40px !important;
+    }
     &:after{
       content: "";
       display: block;
@@ -64,3 +78,4 @@
     }
   }
 }
+

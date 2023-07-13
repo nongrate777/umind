@@ -13,5 +13,8 @@ $banner_style = !empty($fields['image']) ? ' style="background-size: 520px; back
         if (!empty($fields['description'])) { ?>
             <p><?php echo wp_kses_post($fields['description']); ?></p>
         <?php } ?>
+        <div class="banner__join">
+            <span>Get in touch </span><a href="/contact-us" class="banner__join-button"> </a>
+        </div>
     </div>
 </section>

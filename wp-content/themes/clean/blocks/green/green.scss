@@ -2,6 +2,10 @@
   color: $white;
   margin-top: 80px;
   padding-bottom: 130px;
+  @include media768{
+    padding-left: 15px;
+    padding-right: 15px;
+  }
   &__bottom {
     display: flex;
     flex-wrap: wrap;
@@ -36,6 +40,17 @@
         color: $white;
         text-decoration: none;
         transition: 0.5s;
+        @include media768{
+          width: 244px;
+          margin-bottom: 120px;
+          background: $white;
+          color: $h2_text;
+          font-size: 15px;
+          font-style: normal;
+          font-weight: 700;
+          line-height: normal;
+          padding: 14px 0;
+        }
         &:hover{
           color: $h2_text;
           background-color: $white;
@@ -62,7 +77,9 @@
         font-style: normal;
         font-weight: 700;
         line-height: 130%;
-        padding-right: 0;
+        padding-right: 40px;
+        padding-top: 40px;
+
       }
     }
 
@@ -71,7 +88,7 @@
       background: url("../../assets/images/green.png") no-repeat top right;
       @include media768 {
         padding: 25px 0 0 0;
-        background: url("../../assets/images/green.png") no-repeat -5% -30%;
+        background: url("../../assets/images/green.png") no-repeat 5% 150px;
       }
     }
   }

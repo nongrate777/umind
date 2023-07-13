@@ -7,6 +7,7 @@ $fields = get_fields();
         <?php if (!empty($fields['title'])) { ?>
             <h2><?php echo wp_kses_post($fields['title']); ?></h2>
         <?php } ?>
+        <div class="tabs-container"></div>
         <div class="technologies__main">
             <div class="technologies__inner">
                 <?php if (!empty($fields['frontend_title'])) { ?>
@@ -105,3 +106,6 @@ $fields = get_fields();
         </div>
     </div>
 </section>
+
+
+

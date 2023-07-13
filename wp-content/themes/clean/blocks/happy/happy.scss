@@ -1,5 +1,8 @@
 .happy{
   text-align: center;
+  @include media768{
+    padding-top: 120px;
+  }
   h2{
     font-size: 50px;
     color: $h2_text;

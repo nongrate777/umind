@@ -193,6 +193,73 @@ if (header__burger) {
 
 /***/ }),
 
+/***/ "./blocks/technologies/technologies.js":
+/*!*********************************************!*\
+  !*** ./blocks/technologies/technologies.js ***!
+  \*********************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+// Функция для создания табов
+function createTabs() {
+  var tabContainer = document.querySelector('.tabs-container');
+  var tabContent = document.querySelector('.technologies__main');
+  var tabTitles = document.querySelectorAll('.technologies__inner-title'); // Проверяем, существуют ли уже кнопки табов
+
+  if (tabContainer.children.length === 0) {
+    // Создаем кнопки табов
+    for (var i = 0; i < tabTitles.length; i++) {
+      var tabTitle = tabTitles[i];
+      var tabButton = document.createElement('button');
+      tabButton.classList.add('tab-button');
+      tabButton.textContent = tabTitle.textContent;
+      tabContainer.appendChild(tabButton);
+    }
+  } // Показываем первую вкладку по умолчанию
+
+
+  var defaultTab = tabContent.firstElementChild;
+  defaultTab.classList.add('active'); // Обработчик клика по кнопке таба
+
+  var tabButtons = document.querySelectorAll('.tab-button');
+  tabButtons.forEach(function (button, index) {
+    button.addEventListener('click', function () {
+      // Скрытие всех вкладок и удаление класса "active" у кнопок
+      tabContent.querySelectorAll('.technologies__inner').forEach(function (tab) {
+        tab.classList.remove('active');
+      });
+      tabButtons.forEach(function (btn) {
+        btn.classList.remove('active');
+      }); // Показ выбранной вкладки и добавление класса "active" для кнопки
+
+      var selectedTab = tabContent.children[index];
+      selectedTab.classList.add('active');
+      button.classList.add('active');
+    });
+  });
+} // Вызов функции создания табов при загрузке страницы
+
+
+window.addEventListener('load', function () {
+  // Проверка ширины экрана для активации только в мобильной версии
+  if (window.innerWidth <= 767) {
+    createTabs();
+  }
+}); // Вызов функции создания табов при изменении размера экрана
+
+window.addEventListener('resize', function () {
+  // Проверка ширины экрана для активации только в мобильной версии
+  if (window.innerWidth <= 767) {
+    createTabs();
+  } else {
+    // Удаление табов при переходе на большие экраны
+    var tabContainer = document.querySelector('.tabs-container');
+    tabContainer.innerHTML = '';
+  }
+});
+
+/***/ }),
+
 /***/ "./blocks/testimonials/testimonials.js":
 /*!*********************************************!*\
   !*** ./blocks/testimonials/testimonials.js ***!
@@ -230,17 +297,22 @@ for (var i = 0; i < buttonHide.length; i++) {
 var mySwiper = new swiper_swiper_bundle_js__WEBPACK_IMPORTED_MODULE_0___default.a('.swiper-container', {
   grabCursor: true,
   slidesPerView: 'auto',
-  spaceBetween: 30,
+  //loop: true,
   navigation: {
     nextEl: '.swiper-prev',
     prevEl: '.swiper-next'
   },
-  pagination: {
-    el: '.swiper-pagination',
-    clickable: true
-  },
+  pagination: false,
+  slidesOffsetAfter: 50,
   on: {
-    autoHeight: true
+    slideChange: function slideChange() {
+      var activeIndex = this.activeIndex + 1;
+      var slideNumberElement = document.querySelector('.slide-number');
+
+      if (slideNumberElement) {
+        slideNumberElement.textContent = activeIndex.toString();
+      }
+    }
   },
   breakpoints: {
     1200: {
@@ -10524,6 +10596,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _blocks_arrow_arrow__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../../blocks/arrow/arrow */ "./blocks/arrow/arrow.js");
 /* harmony import */ var _blocks_arrow_arrow__WEBPACK_IMPORTED_MODULE_6___default = /*#__PURE__*/__webpack_require__.n(_blocks_arrow_arrow__WEBPACK_IMPORTED_MODULE_6__);
 /* harmony import */ var _blocks_testimonials_testimonials__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../../blocks/testimonials/testimonials */ "./blocks/testimonials/testimonials.js");
+/* harmony import */ var _blocks_technologies_technologies__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../../blocks/technologies/technologies */ "./blocks/technologies/technologies.js");
+/* harmony import */ var _blocks_technologies_technologies__WEBPACK_IMPORTED_MODULE_8___default = /*#__PURE__*/__webpack_require__.n(_blocks_technologies_technologies__WEBPACK_IMPORTED_MODULE_8__);
+
 
 
 

@@ -18,7 +18,7 @@ $fields = get_fields();
                         foreach ($fields['testimonials'] as $t) {
 
                             ?>
-                            <div class="swiper-slide swiper-slide-item">
+                            <div class="swiper-slide swiper-slide-item black-back">
                                 <div class="swiper-slide__top">
                                     <?php echo wp_kses_post($t['label']); ?>
                                 </div>
@@ -36,5 +36,6 @@ $fields = get_fields();
                 <button class="swiper-prev"></button>
             </div>
         </div>
+        <div class="swiper-number">0<span class="slide-number">1</span>/06</div>
     </div>
 </section>

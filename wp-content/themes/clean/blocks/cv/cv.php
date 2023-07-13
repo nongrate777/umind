@@ -30,5 +30,6 @@ $fields = get_fields();
                 <?php }
             } ?>
         </div>
+        <a href="/contact-us" class="join-button">Hire now</a>
     </div>
 </section>

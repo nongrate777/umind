@@ -9,7 +9,7 @@
     padding-bottom: 20px;
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     @include media768 {
-      justify-content: flex-start;
+
       border-bottom: none;
     }
   }
@@ -123,6 +123,31 @@
 
     @include media768 {
       margin: 0 18px 0 auto;
+      display: none;
+    }
+  }
+  &__button2 {
+    text-decoration: none;
+    color: $white;
+    text-transform: uppercase;
+    background: $green;
+    border: 1px solid $green;
+    padding: 18px 19px;
+    font-weight: 700;
+    border-radius: 4px;
+    transition: .5s;
+    min-width: 130px;
+    font-size: 14px;
+    text-align: center;
+    display: none;
+    &:hover {
+      background: $white;
+      color: $green;
+    }
+
+    @include media768 {
+      margin: 0 18px 0 auto;
+      display: block;
     }
   }
 
@@ -144,21 +169,23 @@
 
     span {
       position: absolute;
-      left: 50%;
+      left: 0;
       top: 50%;
       display: block;
-      width: 20px;
+      width: 28px;
       height: 2px;
       background-color: $white;
       transition: .3s;
 
 
       &:nth-child(1) {
-        transform: translate(-50%, calc(-50% - 7px));
+        transform: translate(-50%, calc(-50% - 10px));
       }
 
       &:nth-child(2) {
         transform: translate(-50%, -50%);
+        width: 20px;
+        margin-left: -4px;
       }
 
       &:nth-child(3) {
@@ -177,7 +204,9 @@
         }
 
         &:nth-child(2) {
-          opacity: 0;
+          transform: translate(-50%, -50%) rotate(-45deg);
+          width: 28px;
+          margin-left: 0;
         }
 
         &:nth-child(3) {

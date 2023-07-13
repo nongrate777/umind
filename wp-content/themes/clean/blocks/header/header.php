@@ -39,7 +39,7 @@ $fields = get_field('header', 'options');
         <div class="header__burger">
             <span></span>
             <span></span>
-            <span></span>
+
         </div>
     </div>
 </header>
